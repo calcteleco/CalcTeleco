@@ -4,11 +4,32 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>calc.teleco — Calculadoras de Radiocomunicaciones</title>
-  <meta name="description" content="Calculadoras gratuitas de radioenlaces en español: link budget, reflexión y difracción, Bullington, atenuación por lluvia UIT-R P.530/P.618, y alturas de antenas. Sin registro.">
-  <meta name="keywords" content="calculadora radioenlace, link budget, difracción Bullington, zona de Fresnel, lluvia UIT-R P.530, alturas antenas, propagación radio, telecomunicaciones">
-  <meta property="og:title" content="calc.teleco — Calculadoras de Radiocomunicaciones">
-  <meta property="og:description" content="5 herramientas gratuitas para radioenlaces. Link budget, Bullington, lluvia, Fresnel. En español.">
+  <meta name="description" content="Calculadoras gratuitas de radioenlaces en español: link budget Friis, reflexión tierra esférica, difracción Bullington y Knife-Edge, atenuación por lluvia UIT-R P.530/P.618, y alturas de antenas con zona de Fresnel. Sin registro, sin límites.">
+  <meta name="keywords" content="calculadora radioenlace, link budget, presupuesto de enlace, difracción Bullington, Knife-Edge, zona de Fresnel, lluvia UIT-R P.530, P.618, P.838, atenuación por lluvia, alturas antenas, propagación radio, reflexión tierra esférica, telecomunicaciones, ingeniería telecomunicaciones">
+  <meta name="robots" content="index, follow">
+  <meta name="author" content="calc.teleco">
+  <meta property="og:title" content="calc.teleco — Calculadoras de Radioenlaces en Español">
+  <meta property="og:description" content="5 calculadoras gratuitas para radioenlaces: link budget, reflexión, difracción Bullington, lluvia ITU-R, alturas de antenas. Basadas en normas UIT-R. Sin registro.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://calcteleco.github.io/CalcTeleco/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="calc.teleco — Calculadoras de Radioenlaces">
+  <meta name="twitter:description" content="5 herramientas gratuitas para radioenlaces en español. Link budget, Bullington, lluvia ITU-R, Fresnel. Sin registro.">
+  <link rel="canonical" href="https://calcteleco.github.io/CalcTeleco/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "calc.teleco — Calculadoras de Radiocomunicaciones",
+    "url": "https://calcteleco.github.io/CalcTeleco/",
+    "description": "Calculadoras gratuitas de radioenlaces en español: link budget, reflexión y difracción, método de Bullington, atenuación por lluvia UIT-R P.530/P.618 y cálculo de alturas de antenas con zona de Fresnel.",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Web",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "EUR" },
+    "inLanguage": "es",
+    "keywords": "radioenlace, link budget, difracción, Bullington, zona de Fresnel, lluvia ITU-R, propagación radio, telecomunicaciones"
+  }
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -211,6 +232,229 @@
     }
 
     .tool-card.span2 { grid-column: span 2; }
+
+    /* PRO BANNER */
+    .pro-banner {
+      max-width: 1040px;
+      margin: 0 auto 0;
+      padding: 0 32px 64px;
+    }
+    .pro-card {
+      background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.08) 100%);
+      border: 1px solid rgba(59,130,246,0.3);
+      border-radius: 14px;
+      padding: 32px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+    .pro-left {}
+    .pro-badge {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      background: rgba(59,130,246,0.12);
+      border: 1px solid rgba(59,130,246,0.25);
+      padding: 3px 10px;
+      border-radius: 99px;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .pro-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--hero-t);
+      margin-bottom: 6px;
+      letter-spacing: -0.02em;
+    }
+    .pro-desc {
+      font-size: 13px;
+      color: var(--hero-t2);
+      line-height: 1.6;
+      max-width: 480px;
+    }
+    .pro-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+    .pro-item {
+      font-size: 11px;
+      color: var(--hero-t2);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-family: var(--mono);
+    }
+    .pro-right {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .pro-form {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .pro-input {
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 6px;
+      color: var(--hero-t);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 8px 14px;
+      outline: none;
+      width: 220px;
+      transition: border-color .15s;
+    }
+    .pro-input::placeholder { color: var(--hero-t2); }
+    .pro-input:focus { border-color: var(--accent); }
+    .pro-btn {
+      background: var(--accent);
+      border: none;
+      border-radius: 6px;
+      color: white;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 8px 18px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity .15s;
+    }
+    .pro-btn:hover { opacity: 0.88; }
+    .pro-note {
+      font-size: 11px;
+      color: var(--hero-t2);
+      font-family: var(--mono);
+    }
+    .pro-thanks {
+      display: none;
+      font-size: 13px;
+      color: var(--ok);
+      font-weight: 500;
+      text-align: right;
+    }
+
+    /* SEO TEXT SECTIONS (visible para Google, discreto en UI) */
+    .seo-section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 32px 48px;
+      border-top: 1px solid var(--hero-b);
+    }
+    .seo-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      padding-top: 36px;
+    }
+    .seo-block h2 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--hero-t);
+      margin-bottom: 8px;
+      letter-spacing: -0.01em;
+    }
+    .seo-block p {
+      font-size: 12px;
+      color: var(--hero-t2);
+      line-height: 1.7;
+    }
+    .seo-block a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .seo-section-title {
+      padding-top: 36px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--hero-t2);
+      font-family: var(--mono);
+    }
+
+    /* ABOUT SECTION */
+    .about-section {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 32px 64px;
+      border-top: 1px solid var(--hero-b);
+    }
+    .about-inner {
+      padding-top: 36px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      align-items: start;
+    }
+    .about-left h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--hero-t);
+      margin-bottom: 14px;
+      letter-spacing: -0.02em;
+    }
+    .about-left p {
+      font-size: 13px;
+      color: var(--hero-t2);
+      line-height: 1.75;
+      margin-bottom: 10px;
+    }
+    .about-right {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .about-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--hero-b);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .about-card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--hero-t);
+      margin-bottom: 4px;
+    }
+    .about-card-desc {
+      font-size: 12px;
+      color: var(--hero-t2);
+      line-height: 1.6;
+    }
+
+    /* SEO BELOW CALCS */
+    .calc-seo {
+      margin-top: 32px;
+      padding: 24px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+    }
+    .calc-seo h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+    }
+    .calc-seo p {
+      font-size: 12px;
+      color: var(--text2);
+      line-height: 1.75;
+      margin-bottom: 8px;
+    }
+    .calc-seo p:last-child { margin-bottom: 0; }
 
     /* FOOTER HOME */
     .home-footer {
@@ -451,10 +695,17 @@
       .calc-page { padding: 20px 16px 60px; }
       .hero { padding: 48px 20px 40px; }
       .tools-grid { padding: 0 20px 60px; }
+      .pro-card { flex-direction: column; align-items: flex-start; }
+      .pro-right { align-items: flex-start; width: 100%; }
+      .pro-input { width: 100%; }
+      .seo-grid { grid-template-columns: 1fr 1fr; }
+      .about-inner { grid-template-columns: 1fr; }
+      .pro-banner, .seo-section, .about-section { padding-left: 20px; padding-right: 20px; }
     }
     @media (max-width: 520px) {
       .tools-grid { grid-template-columns: 1fr; }
       h1.hero-h1 { font-size: 28px; }
+      .seo-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -524,6 +775,89 @@
     </div>
   </div>
 
+  <!-- PRO BANNER -->
+  <div class="pro-banner">
+    <div class="pro-card">
+      <div class="pro-left">
+        <div class="pro-badge">PRÓXIMAMENTE · CALC.TELECO PRO</div>
+        <div class="pro-title">Scripts MATLAB + Ejercicios de Examen</div>
+        <div class="pro-desc">Los mismos códigos que usé en la asignatura de Radiación y Radiocomunicación, comentados línea a línea, con ejercicios tipo examen resueltos paso a paso y los errores típicos que cometemos en MATLAB.</div>
+        <div class="pro-items">
+          <span class="pro-item">Scripts MATLAB comentados</span>
+          <span class="pro-item">Ejercicios tipo examen</span>
+          <span class="pro-item">PDFs con procedimientos</span>
+          <span class="pro-item">Errores comunes MATLAB</span>
+          <span class="pro-item">Chuletas de fórmulas</span>
+        </div>
+      </div>
+      <div class="pro-right">
+        <div class="pro-form" id="pro-form">
+          <input type="email" class="pro-input" id="pro-email" placeholder="tu@correo.com" />
+          <button class="pro-btn" onclick="proBannerSubmit()">Avísame cuando esté listo</button>
+        </div>
+        <div class="pro-thanks" id="pro-thanks">✓ Te avisamos en cuanto esté disponible</div>
+        <div class="pro-note">Sin spam · Solo te avisamos cuando esté listo</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEO TEXT — Descripción de calculadoras -->
+  <div class="seo-section">
+    <div class="seo-section-title">Qué puedes calcular</div>
+    <div class="seo-grid">
+      <div class="seo-block">
+        <h2>Presupuesto de Enlace (Link Budget)</h2>
+        <p>Calcula la potencia recibida y el margen de desvanecimiento de un radioenlace usando el modelo de espacio libre de Friis. Introduce la potencia transmitida, ganancias de antena, pérdidas de terminal, frecuencia y distancia para obtener el EIRP, FSPL y margen en tiempo real.</p>
+      </div>
+      <div class="seo-block">
+        <h2>Reflexión y Difracción — Tierra Esférica</h2>
+        <p>Modelo de dos rayos con selección automática de régimen: reflexión especular cuando φ ≥ φ<sub>lím</sub>, difracción por tierra esférica con despejamiento negativo o positivo cuando d supera d<sub>maxLOS</sub>. Incluye coeficiente de Fresnel complejo, factor de divergencia D y rugosidad superficial.</p>
+      </div>
+      <div class="seo-block">
+        <h2>Difracción por Terreno — Bullington y Knife-Edge</h2>
+        <p>Calcula la pérdida adicional por difracción L<sub>ad</sub> para perfiles con uno o varios obstáculos. Obstáculo aislado: modelo Knife-Edge con parámetro de Fresnel v. Múltiples obstáculos: método de Bullington con construcción del obstáculo ficticio y corrección de Lcu.</p>
+      </div>
+      <div class="seo-block">
+        <h2>Atenuación por Lluvia — ITU-R P.530 y P.618</h2>
+        <p>Calcula la indisponibilidad por lluvia para radioenlaces terrestres (UIT-R P.530-17) y satelitales (UIT-R P.618). Los coeficientes k y α se interpolan automáticamente de la tabla de UIT-R P.838-3 según frecuencia y polarización. Introduce R<sub>0.01</sub> y el margen MD para obtener q.</p>
+      </div>
+      <div class="seo-block">
+        <h2>Cálculo de Alturas de Antenas</h2>
+        <p>Encuentra las alturas mínimas h<sub>et1</sub> y h<sub>et2</sub> que garantizan el despejamiento requerido (v ≤ v<sub>req</sub>) en todos los obstáculos del perfil. El algoritmo itera sobre el obstáculo crítico y minimiza la suma de alturas. Visualiza el perfil con el rayo óptico y la primera zona de Fresnel.</p>
+      </div>
+      <div class="seo-block">
+        <h2>¿Por qué en español?</h2>
+        <p>La mayoría de calculadoras de radioenlaces online están en inglés. Estas herramientas usan terminología directamente de los apuntes de ingeniería de telecomunicaciones en español: cota, flecha terrestre, despejamiento, zona de Fresnel, indisponibilidad. Sin traducción, sin confusión.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ABOUT SECTION -->
+  <div class="about-section">
+    <div class="about-inner">
+      <div class="about-left">
+        <h2>Por qué existe calc.teleco</h2>
+        <p>Soy estudiante de Ingeniería en Sistemas de Telecomunicaciones. Durante la asignatura de Radiación y Radiocomunicación fui creando scripts MATLAB para resolver ejercicios de radioenlaces: link budget, reflexión sobre tierra esférica, difracción por Bullington, lluvia ITU-R, alturas de antenas.</p>
+        <p>El problema: cuando el resultado no cuadraba, nunca sabías si era un error de teoría, de unidades o de MATLAB. Perdía tiempo revisando cosas que ya estaban bien.</p>
+        <p>Calc.teleco nació de esa necesidad: una segunda opinión rápida, con las mismas fórmulas de clase, en español, sin registro.</p>
+      </div>
+      <div class="about-right">
+        <div class="about-card">
+          <div class="about-card-title">⚙ Cálculos verificados con MATLAB</div>
+          <div class="about-card-desc">Cada calculadora reproduce fielmente los resultados de los scripts MATLAB usados en prácticas y exámenes. Si MATLAB y calc.teleco dan lo mismo, el procedimiento es correcto.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-title">📐 Normas UIT-R de referencia</div>
+          <div class="about-card-desc">Los modelos implementan UIT-R P.526, P.530-17, P.618, P.838-3 y P.839. Los mismos documentos que se citan en los apuntes de la asignatura.</div>
+        </div>
+        <div class="about-card">
+          <div class="about-card-title">🎓 Orientado a estudiantes</div>
+          <div class="about-card-desc">No es una herramienta profesional genérica. Está diseñada para los ejercicios concretos que aparecen en los exámenes de Radiación y Radiocomunicación: mismos parámetros, misma terminología, mismos rangos.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="home-footer">
     calc.teleco · Herramientas de libre uso para ingeniería de radiocomunicaciones
   </div>
@@ -582,6 +916,12 @@
         </div>
         <div class="chart-card"><div class="ctitle">Margen vs Frecuencia (distancia fija)</div><div class="cwrap"><canvas id="lb-chart-freq"></canvas></div></div>
       </div>
+    <div class="calc-seo">
+      <h2>Cómo funciona el presupuesto de enlace (Link Budget)</h2>
+      <p>El link budget calcula la potencia que llega al receptor en un radioenlace usando el modelo de propagación en espacio libre de Friis. La pérdida en espacio libre (FSPL) depende de la frecuencia y la distancia: FSPL = 20·log(d) + 20·log(f) + 32.44, con d en km y f en MHz. A esa pérdida se le añaden o restan las ganancias y pérdidas del sistema (antenas, cables, conectores).</p>
+      <p>El margen de desvanecimiento M = P<sub>rx</sub> − S<sub>rx</sub> indica cuántos dB de holgura tiene el sistema antes de que la señal caiga por debajo de la sensibilidad del receptor. Un margen positivo indica que el enlace funciona; la magnitud del margen determina la robustez frente a atenuaciones adicionales por lluvia, difracción o multitrayecto.</p>
+      <p>Errores típicos en MATLAB: confundir frecuencia en Hz con MHz en la fórmula de FSPL, o mezclar dBm y dBW en el balance de potencias.</p>
+    </div>
     </div>
   </div>
 </div>
@@ -642,6 +982,12 @@
         <div class="chart-card"><div class="ctitle">Perfil del enlace (tierra equivalente)</div><div class="cwrap tall"><canvas id="ref-chart"></canvas></div></div>
       </div>
     </div>
+    <div class="calc-seo">
+      <h2>Reflexión sobre tierra esférica y difracción — Selección automática de régimen</h2>
+      <p>Este modelo calcula la pérdida adicional L<sub>ad</sub> en un radioenlace terrestre considerando la curvatura de la tierra mediante el radio de tierra equivalente R<sub>e</sub> = K·R<sub>T</sub>, con K = 4/3 en condiciones normales. Primero se localiza el punto de reflexión mediante la geometría de dos rayos (parámetros p y φ<sub>aux</sub>), y se calcula el ángulo de incidencia φ en ese punto.</p>
+      <p>La selección de régimen sigue el criterio: si φ ≥ φ<sub>lím</sub> = (5400/f<sub>MHz</sub>)<sup>1/3</sup>, se aplica el modelo de reflexión de dos rayos con coeficiente de Fresnel complejo (H o V), factor de divergencia D y factor de rugosidad γ. Si φ &lt; φ<sub>lím</sub> o d > d<sub>maxLOS</sub>, se aplica el modelo de difracción por tierra esférica con los parámetros X, Y1, Y2 de UIT-R P.526.</p>
+      <p>Error frecuente: usar la cota del suelo como altura absoluta de la antena, olvidando sumar la altura de la antena sobre el suelo (h = cota + h<sub>antena</sub>).</p>
+    </div>
   </div>
 </div>
 
@@ -684,6 +1030,12 @@
         <div class="tbl-wrap"><table><thead><tr><th>#</th><th>d₁ (km)</th><th>b (m)</th><th>y (m)</th><th>c (m)</th><th>R₁ (m)</th><th>v</th><th>Estado</th></tr></thead><tbody id="dif-tbody"></tbody></table></div>
         <div class="chart-card"><div class="ctitle">Perfil de obstáculos y zona de Fresnel</div><div class="cwrap tall"><canvas id="dif-chart"></canvas></div></div>
       </div>
+    </div>
+    <div class="calc-seo">
+      <h2>Difracción por terreno — Knife-Edge y método de Bullington</h2>
+      <p>Calcula la pérdida adicional por difracción L<sub>ad</sub> para un perfil de terreno con obstáculos. Para cada obstáculo se calcula la flecha terrestre b = d<sub>1</sub>·d<sub>2</sub>/(2·K·R<sub>T</sub>), la altura del rayo óptico y, el despejamiento c = b + h<sub>obs</sub> − y, el radio de la primera zona de Fresnel R<sub>1</sub> = √(λ·d<sub>1</sub>·d<sub>2</sub>/(d<sub>1</sub>+d<sub>2</sub>)) y el parámetro de Fresnel v = √2·c/R<sub>1</sub>.</p>
+      <p>Con un solo obstáculo activo (v > −0.78): fórmula Knife-Edge L<sub>ad</sub> = 6.9 + 20·log(√((v−0.1)²+1) + v − 0.1). Con varios obstáculos activos: método de Bullington, que construye un obstáculo ficticio a partir de las pendientes máximas desde TX y RX, calcula v ficticio y añade la corrección de Bullington: L<sub>ad</sub> = L<sub>cu</sub> + (1 − e<sup>−Lcu/6</sup>)·(10 + 0.02·d<sub>km</sub>).</p>
+      <p>Error típico: introducir las alturas de los obstáculos como altura relativa al suelo en lugar de cota absoluta sobre el nivel del mar, que es lo que exige el modelo.</p>
     </div>
   </div>
 </div>
@@ -743,6 +1095,12 @@
         </div>
       </div>
     </div>
+    <div class="calc-seo">
+      <h2>Atenuación por lluvia en radioenlaces — ITU-R P.530 y P.618</h2>
+      <p>La atenuación por lluvia es la causa principal de indisponibilidad en radioenlaces que operan por encima de 10 GHz. El modelo parte de la intensidad de lluvia excedida el 0.01 % del tiempo (R<sub>0.01</sub>, en mm/h), que se obtiene de los mapas de UIT-R P.837 según la latitud y longitud del enlace.</p>
+      <p>Para enlaces terrestres (P.530): la atenuación específica γ<sub>R</sub> = k·R<sub>0.01</sub><sup>α</sup> dB/km se calcula con los coeficientes k y α de la Tabla 1 de P.838-3, interpolados según frecuencia y polarización. La distancia efectiva d<sub>eff</sub> corrige la longitud del trayecto para reflejar la inhomogeneidad espacial de la lluvia. F<sub>0.01</sub> = γ<sub>R</sub>·d<sub>eff</sub> da la atenuación excedida el 0.01 % del tiempo, a partir de la cual se obtiene q para cualquier margen MD.</p>
+      <p>Para enlaces satelitales (P.618): el procedimiento añade la geometría del trayecto inclinado (longitud inclinada L<sub>s</sub>, proyección horizontal L<sub>g</sub>, factor de reducción r<sub>0.01</sub> y longitud de trayecto reducida L<sub>r</sub>).</p>
+    </div>
   </div>
 </div>
 
@@ -795,9 +1153,18 @@
   </div>
 </div>
 
+    <div class="calc-seo">
+      <h2>Cálculo de alturas mínimas de antenas con zona de Fresnel</h2>
+      <p>En el diseño de un radioenlace terrestre, las antenas deben instalarse a una altura suficiente para que el rayo óptico no sea obstruido por el terreno u obstáculos intermedios. El criterio estándar es que el parámetro de Fresnel v ≤ −0.78 en todos los obstáculos, lo que garantiza que la primera zona de Fresnel está libre en al menos un 60 %.</p>
+      <p>El algoritmo busca las alturas h<sub>et1</sub> y h<sub>et2</sub> mínimas (en pasos de 1 m) que satisfacen ese criterio simultáneamente en todos los obstáculos del perfil. En cada iteración identifica el obstáculo más crítico, calcula la altura de rayo necesaria y la pendiente requerida, y deduce las alturas de antena compatibles minimizando la suma h<sub>et1</sub> + h<sub>et2</sub>.</p>
+      <p>La visualización muestra el rayo óptico entre las antenas, la envolvente de la primera zona de Fresnel y los obstáculos del perfil, permitiendo verificar de forma gráfica el despejamiento.</p>
+    </div>
+  </div>
+</div>
+
 <footer>
-  <strong style="color:var(--text2)">calc.teleco</strong> · Herramientas de libre uso para ingeniería de radiocomunicaciones ·
-  <a href="javascript:showPage('lb')">Link Budget</a> · <a href="javascript:showPage('ref')">Reflexión</a> · <a href="javascript:showPage('dif')">Difracción</a> · <a href="javascript:showPage('lluvia')">Lluvia</a> · <a href="javascript:showPage('ant')">Antenas</a>
+  <strong style="color:var(--text2)">calc.teleco</strong> · Calculadoras gratuitas de radioenlaces en español ·
+  <a href="javascript:showPage('lb')">Link Budget</a> · <a href="javascript:showPage('ref')">Reflexión</a> · <a href="javascript:showPage('dif')">Difracción Bullington</a> · <a href="javascript:showPage('lluvia')">Lluvia ITU-R</a> · <a href="javascript:showPage('ant')">Alturas de Antenas</a>
 </footer>
 
 <!-- ══════════════════════════════════════════════════════════
@@ -1243,6 +1610,22 @@ function antCalc(){
   for(let i=0;i<=s;i++){const d=i/s*d_tot,d2=d_tot-d;lb2.push(f1(d/1e3));const yr=ee_tx+het1+slope2*d;ray.push(yr);const R1v=d>0&&d2>0?Math.sqrt(lambda*d*d2/(d+d2)):0;fu.push(yr+R1v);fd.push(yr-R1v);}
   obs.forEach(o=>{const idx=Math.round(o.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=o.ee;});
   antChart.data.labels=lb2;antChart.data.datasets[0].data=ray;antChart.data.datasets[1].data=fu;antChart.data.datasets[2].data=fd;antChart.data.datasets[3].data=od;antChart.update('none');
+}
+
+// ── PRO BANNER ────────────────────────────────────────────────
+function proBannerSubmit() {
+  const email = $('pro-email').value.trim();
+  if (!email || !email.includes('@')) {
+    $('pro-email').focus();
+    $('pro-email').style.borderColor = 'var(--bad)';
+    setTimeout(() => { $('pro-email').style.borderColor = ''; }, 1500);
+    return;
+  }
+  // Redirect to Tally form with email pre-filled
+  const url = 'https://tally.so/r/mO1LQK?email=' + encodeURIComponent(email);
+  window.open(url, '_blank');
+  $('pro-form').style.display = 'none';
+  $('pro-thanks').style.display = 'block';
 }
 
 // ── INIT ──────────────────────────────────────────────────────
