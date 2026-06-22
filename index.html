@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>calc.teleco — Calculadoras de Radiocomunicaciones</title>
+  <meta name="description" content="Calculadoras gratuitas de radioenlaces en español: link budget, reflexión y difracción, Bullington, atenuación por lluvia UIT-R P.530/P.618, y alturas de antenas. Sin registro.">
+  <meta name="keywords" content="calculadora radioenlace, link budget, difracción Bullington, zona de Fresnel, lluvia UIT-R P.530, alturas antenas, propagación radio, telecomunicaciones">
+  <meta property="og:title" content="calc.teleco — Calculadoras de Radiocomunicaciones">
+  <meta property="og:description" content="5 herramientas gratuitas para radioenlaces. Link budget, Bullington, lluvia, Fresnel. En español.">
+  <meta property="og:type" content="website">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    /* ── TOKENS ───────────────────────────────────────────── */
+    :root {
+      --bg:       #f5f6f8;
+      --surface:  #ffffff;
+      --border:   #e4e7ec;
+      --border2:  #cdd2db;
+      --text:     #0d1117;
+      --text2:    #5a6478;
+      --text3:    #9aa0ad;
+      --accent:   #3b82f6;
+      --acl:      #eff6ff;
+      --ok:       #10b981;
+      --okl:      #ecfdf5;
+      --warn:     #f59e0b;
+      --warnl:    #fffbeb;
+      --bad:      #ef4444;
+      --badl:     #fef2f2;
+      --hero-bg:  #0d1117;
+      --hero-s:   #161b22;
+      --hero-b:   #21262d;
+      --hero-t:   #e6edf3;
+      --hero-t2:  #8b949e;
+      --r:        8px;
+      --mono:     'JetBrains Mono', monospace;
+      --sans:     'Space Grotesk', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; min-height: 100vh; }
+
+    /* ── HEADER ────────────────────────────────────────────── */
+    header {
+      background: var(--hero-bg);
+      border-bottom: 1px solid var(--hero-b);
+      padding: 0 32px;
+      height: 54px;
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      position: sticky;
+      top: 0;
+      z-index: 300;
+    }
+
+    .logo {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--hero-t);
+      white-space: nowrap;
+      cursor: pointer;
+      letter-spacing: -0.02em;
+    }
+    .logo-dot { color: var(--accent); }
+
+    .nav { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+    .nav::-webkit-scrollbar { display: none; }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--hero-t2);
+      padding: 5px 11px;
+      border-radius: 6px;
+      white-space: nowrap;
+      transition: background .15s, color .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .nav-btn:hover { background: var(--hero-b); color: var(--hero-t); }
+    .nav-btn.active { background: rgba(59,130,246,0.15); color: var(--accent); font-weight: 500; }
+    .nav-icon { font-size: 14px; line-height: 1; }
+
+    /* ── PAGES ─────────────────────────────────────────────── */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── HOMEPAGE ──────────────────────────────────────────── */
+    #page-home { background: var(--hero-bg); min-height: 100vh; }
+
+    .hero {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 80px 32px 64px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--accent);
+      border: 1px solid rgba(59,130,246,0.3);
+      padding: 4px 12px;
+      border-radius: 99px;
+      margin-bottom: 28px;
+      letter-spacing: 0.06em;
+    }
+    .hero-eyebrow::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: blink 2s ease-in-out infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero h1 {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 700;
+      color: var(--hero-t);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      margin-bottom: 18px;
+    }
+    .hero h1 em { font-style: normal; color: var(--accent); }
+
+    .hero-sub {
+      font-size: 16px;
+      color: var(--hero-t2);
+      font-weight: 400;
+      line-height: 1.6;
+      max-width: 540px;
+      margin: 0 auto 48px;
+    }
+
+    /* TOOL CARDS GRID */
+    .tools-grid {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 0 32px 80px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .tool-card {
+      background: var(--hero-s);
+      border: 1px solid var(--hero-b);
+      border-radius: 12px;
+      padding: 24px;
+      cursor: pointer;
+      transition: border-color .2s, transform .15s, background .2s;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(59,130,246,0.06) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+    .tool-card:hover { border-color: rgba(59,130,246,0.5); transform: translateY(-2px); }
+    .tool-card:hover::before { opacity: 1; }
+
+    .tc-icon {
+      font-size: 24px;
+      margin-bottom: 14px;
+      display: block;
+    }
+    .tc-num {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 0.1em;
+      margin-bottom: 8px;
+      display: block;
+      opacity: 0.7;
+    }
+    .tc-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--hero-t);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+    .tc-desc {
+      font-size: 12px;
+      color: var(--hero-t2);
+      line-height: 1.6;
+      margin-bottom: 14px;
+    }
+    .tc-tag {
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--hero-t2);
+      background: var(--hero-b);
+      padding: 3px 7px;
+      border-radius: 4px;
+      display: inline-block;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .tool-card.span2 { grid-column: span 2; }
+
+    /* FOOTER HOME */
+    .home-footer {
+      border-top: 1px solid var(--hero-b);
+      padding: 24px 32px;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--hero-t2);
+    }
+
+    /* ── CALC PAGES ─────────────────────────────────────────── */
+    .calc-page { max-width: 1100px; margin: 0 auto; padding: 32px 28px 80px; }
+
+    .ph { margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+    .ph-left {}
+    .ph-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: var(--mono);
+      font-size: 10px;
+      color: var(--accent);
+      background: var(--acl);
+      padding: 3px 9px;
+      border-radius: 99px;
+      margin-bottom: 8px;
+      letter-spacing: 0.05em;
+    }
+    h1.ph-title {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 3px;
+      color: var(--text);
+    }
+    .ph-sub { font-size: 13px; color: var(--text2); font-weight: 400; }
+    .back-btn {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text2);
+      font-family: var(--sans);
+      font-size: 12px;
+      padding: 6px 12px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: border-color .15s, color .15s;
+      flex-shrink: 0;
+    }
+    .back-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* ── LAYOUT ─────────────────────────────────────────────── */
+    .layout { display: grid; grid-template-columns: 300px 1fr; gap: 18px; align-items: start; }
+    .layout.wide { grid-template-columns: 340px 1fr; }
+
+    /* ── INPUT PANEL ────────────────────────────────────────── */
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; position: sticky; top: 70px; }
+    .psec { padding: 16px 18px; border-bottom: 1px solid var(--border); }
+    .psec:last-child { border-bottom: none; }
+    .slabel {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--text3);
+      margin-bottom: 14px;
+    }
+
+    /* FIELDS */
+    .field { margin-bottom: 14px; }
+    .field:last-child { margin-bottom: 0; }
+    .fh { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .flabel { font-size: 13px; color: var(--text); font-weight: 400; }
+    .fval {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      background: var(--acl);
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 82px;
+      text-align: right;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--border2);
+      outline: none;
+      cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid white;
+      box-shadow: 0 0 0 1px var(--accent);
+      transition: transform .1s;
+    }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--accent); border: 2px solid white; }
+    .rlim { display: flex; justify-content: space-between; font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 3px; }
+
+    select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: var(--sans);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color .15s;
+    }
+    select:focus { border-color: var(--accent); }
+
+    input[type="number"] {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border2);
+      border-radius: 5px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 13px;
+      padding: 7px 10px;
+      outline: none;
+      -moz-appearance: textfield;
+      transition: border-color .15s;
+    }
+    input[type="number"]:focus { border-color: var(--accent); }
+    input[type="number"]::-webkit-outer-spin-button,
+    input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* ── RIGHT COL ──────────────────────────────────────────── */
+    .rcol { display: flex; flex-direction: column; gap: 14px; }
+
+    /* KPI */
+    .krow  { display: grid; grid-template-columns: repeat(4,1fr); gap: 10px; }
+    .krow3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+
+    .kpi {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 14px 16px;
+    }
+    .klabel { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 5px; }
+    .kvalue { font-family: var(--mono); font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; line-height: 1; }
+    .kunit  { font-size: 11px; color: var(--text3); margin-left: 3px; }
+
+    .kpi.ok   { border-left: 3px solid var(--ok);   background: var(--okl); }
+    .kpi.warn { border-left: 3px solid var(--warn); background: var(--warnl); }
+    .kpi.bad  { border-left: 3px solid var(--bad);  background: var(--badl); }
+    .kpi.ok   .kvalue { color: var(--ok); }
+    .kpi.warn .kvalue { color: var(--warn); }
+    .kpi.bad  .kvalue { color: var(--bad); }
+
+    /* VERDICT */
+    .verdict {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .vdot { width: 8px; height: 8px; border-radius: 50%; background: var(--border2); flex-shrink: 0; }
+    .vtxt { font-size: 13px; font-weight: 500; color: var(--text2); }
+    .vsub { font-size: 12px; color: var(--text2); margin-left: auto; font-family: var(--mono); }
+
+    /* CHARTS */
+    .charts2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; }
+    .ctitle { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 14px; }
+    .cwrap  { position: relative; height: 200px; }
+    .cwrap.tall { height: 250px; }
+
+    /* FORMULA */
+    .fbox { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 16px 18px; }
+    .ftitle { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 10px; }
+    .fbody { font-family: var(--mono); font-size: 11.5px; color: var(--text2); line-height: 2.1; background: var(--bg); border: 1px solid var(--border); border-radius: 5px; padding: 12px 14px; }
+    .fs { color: var(--accent); font-weight: 500; }
+    .fn { color: var(--ok); }
+    .fc { color: var(--text3); font-size: 10.5px; }
+
+    /* TABLE */
+    .tbl-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); background: var(--bg); }
+    td { padding: 9px 12px; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 12px; color: var(--text); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--bg); }
+    td.ok   { color: var(--ok); font-weight: 500; }
+    td.bad  { color: var(--bad); font-weight: 500; }
+    td.warn { color: var(--warn); font-weight: 500; }
+
+    /* OBSTACLE INPUT */
+    .obs-head { display: grid; grid-template-columns: 1fr 1fr 28px; gap: 6px; margin-bottom: 4px; }
+    .obs-head span { font-size: 10px; color: var(--text3); font-family: var(--mono); }
+    .obs-row { display: grid; grid-template-columns: 1fr 1fr 28px; gap: 6px; align-items: center; margin-bottom: 6px; }
+    .obs-row input { padding: 6px 8px; font-size: 12px; }
+    .obs-del { background: none; border: 1px solid var(--border); border-radius: 4px; color: var(--text3); cursor: pointer; padding: 0; width: 28px; height: 30px; font-size: 14px; line-height: 1; transition: all .15s; }
+    .obs-del:hover { border-color: var(--bad); color: var(--bad); }
+    .obs-add { background: none; border: 1px dashed var(--border2); border-radius: 5px; color: var(--text3); cursor: pointer; padding: 7px; font-size: 12px; width: 100%; transition: all .15s; font-family: var(--sans); }
+    .obs-add:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* DECISION */
+    .decision { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); padding: 13px 16px; }
+    .dtitle { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--text3); margin-bottom: 6px; }
+    .dtext { font-size: 13px; font-weight: 500; }
+    .dtext.ok   { color: var(--ok); }
+    .dtext.warn { color: var(--warn); }
+    .dtext.bad  { color: var(--bad); }
+    .dtext.info { color: var(--accent); }
+
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 20px 32px; text-align: center; font-size: 12px; color: var(--text3); }
+    footer a { color: var(--text2); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .tools-grid { grid-template-columns: 1fr 1fr; }
+      .tool-card.span2 { grid-column: span 1; }
+      .layout, .layout.wide { grid-template-columns: 1fr; }
+      .panel { position: static; }
+      .krow  { grid-template-columns: 1fr 1fr; }
+      .charts2 { grid-template-columns: 1fr; }
+      header { padding: 0 16px; }
+      .calc-page { padding: 20px 16px 60px; }
+      .hero { padding: 48px 20px 40px; }
+      .tools-grid { padding: 0 20px 60px; }
+    }
+    @media (max-width: 520px) {
+      .tools-grid { grid-template-columns: 1fr; }
+      h1.hero-h1 { font-size: 28px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header>
+  <div class="logo" onclick="showPage('home')">calc<span class="logo-dot">.</span>teleco</div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="showPage('lb')"><span class="nav-icon">📡</span>Link Budget</button>
+    <button class="nav-btn" onclick="showPage('ref')"><span class="nav-icon">🌐</span>Reflexión</button>
+    <button class="nav-btn" onclick="showPage('dif')"><span class="nav-icon">⛰</span>Difracción</button>
+    <button class="nav-btn" onclick="showPage('lluvia')"><span class="nav-icon">🌧</span>Lluvia</button>
+    <button class="nav-btn" onclick="showPage('ant')"><span class="nav-icon">📶</span>Antenas</button>
+  </nav>
+</header>
+
+<!-- ══════════════════════════════════════════════════════════
+     HOME
+═══════════════════════════════════════════════════════════ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-eyebrow">HERRAMIENTAS GRATUITAS · EN ESPAÑOL</div>
+    <h1>Calculadoras de<br><em>Radiocomunicaciones</em></h1>
+    <p class="hero-sub">5 herramientas basadas en normas UIT-R para diseño y análisis de radioenlaces. Sin registro, sin límites, sin publicidad intrusiva.</p>
+  </div>
+
+  <div class="tools-grid">
+    <div class="tool-card" onclick="showPage('lb')">
+      <span class="tc-icon">📡</span>
+      <span class="tc-num">01 · LINK BUDGET</span>
+      <div class="tc-title">Presupuesto de Enlace RF</div>
+      <div class="tc-desc">Calcula EIRP, pérdidas en espacio libre (Friis) y margen de desvanecimiento. Gráficos P<sub>rx</sub> vs distancia y desglose en tiempo real.</div>
+      <span class="tc-tag">Modelo Friis</span>
+    </div>
+
+    <div class="tool-card" onclick="showPage('ref')">
+      <span class="tc-icon">🌐</span>
+      <span class="tc-num">02 · REFLEXIÓN</span>
+      <div class="tc-title">Reflexión y Difracción — Tierra Esférica</div>
+      <div class="tc-desc">Modelo dos rayos con coeficiente de Fresnel complejo, factor de divergencia y rugosidad. Selección automática de régimen según φ y d<sub>maxLOS</sub>.</div>
+      <span class="tc-tag">ITU-R P.526</span>
+    </div>
+
+    <div class="tool-card" onclick="showPage('dif')">
+      <span class="tc-icon">⛰</span>
+      <span class="tc-num">03 · DIFRACCIÓN</span>
+      <div class="tc-title">Difracción por Terreno</div>
+      <div class="tc-desc">Knife-edge para obstáculo aislado y método de Bullington para múltiples obstáculos. Visualización del perfil con zona de Fresnel.</div>
+      <span class="tc-tag">Bullington · Knife-Edge</span>
+    </div>
+
+    <div class="tool-card span2" onclick="showPage('lluvia')">
+      <span class="tc-icon">🌧</span>
+      <span class="tc-num">04 · ATENUACIÓN POR LLUVIA</span>
+      <div class="tc-title">Lluvia — Terrenal y Satelital</div>
+      <div class="tc-desc">Atenuación específica γ<sub>R</sub>, distancia efectiva y disponibilidad del enlace para radioenlaces terrestres (P.530) y satelitales (P.618). Coeficientes k y α interpolados de P.838-3.</div>
+      <span class="tc-tag">ITU-R P.530 · P.618 · P.838-3</span>
+    </div>
+
+    <div class="tool-card" onclick="showPage('ant')">
+      <span class="tc-icon">📶</span>
+      <span class="tc-num">05 · ALTURAS</span>
+      <div class="tc-title">Cálculo de Alturas de Antenas</div>
+      <div class="tc-desc">Optimiza h<sub>et1</sub> y h<sub>et2</sub> mínimas para garantizar el despejamiento requerido en todos los obstáculos del perfil.</div>
+      <span class="tc-tag">Zona de Fresnel · v mín</span>
+    </div>
+  </div>
+
+  <div class="home-footer">
+    calc.teleco · Herramientas de libre uso para ingeniería de radiocomunicaciones
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 1 — LINK BUDGET
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-lb">
+  <div class="calc-page">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-tag">01 · LINK BUDGET</div>
+        <h1 class="ph-title">Presupuesto de Enlace RF</h1>
+        <p class="ph-sub">Modelo espacio libre (Friis) · Resultados en tiempo real</p>
+      </div>
+      <button class="back-btn" onclick="showPage('home')">← Herramientas</button>
+    </div>
+    <div class="layout">
+      <aside class="panel">
+        <div class="psec">
+          <div class="slabel">Transmisor</div>
+          <div class="field"><div class="fh"><span class="flabel">P<sub>tx</sub></span><span class="fval" id="lb-vptx">30.0 dBm</span></div><input type="range" id="lb-ptx" min="0" max="50" step="0.5" value="30" oninput="lbCalc()"><div class="rlim"><span>0</span><span>50 dBm</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">G<sub>tx</sub></span><span class="fval" id="lb-vgtx">15.0 dBi</span></div><input type="range" id="lb-gtx" min="0" max="45" step="0.5" value="15" oninput="lbCalc()"><div class="rlim"><span>0</span><span>45 dBi</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">L<sub>tx</sub></span><span class="fval" id="lb-vltx">2.0 dB</span></div><input type="range" id="lb-ltx" min="0" max="10" step="0.5" value="2" oninput="lbCalc()"><div class="rlim"><span>0</span><span>10 dB</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Frecuencia</span><span class="fval" id="lb-vfreq">2.4 GHz</span></div><input type="range" id="lb-freq" min="100" max="60000" step="100" value="2400" oninput="lbCalc()"><div class="rlim"><span>100 MHz</span><span>60 GHz</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Canal + Receptor</div>
+          <div class="field"><div class="fh"><span class="flabel">Distancia</span><span class="fval" id="lb-vdist">10.0 km</span></div><input type="range" id="lb-dist" min="0.1" max="100" step="0.1" value="10" oninput="lbCalc()"><div class="rlim"><span>0.1 km</span><span>100 km</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">G<sub>rx</sub></span><span class="fval" id="lb-vgrx">15.0 dBi</span></div><input type="range" id="lb-grx" min="0" max="45" step="0.5" value="15" oninput="lbCalc()"><div class="rlim"><span>0</span><span>45 dBi</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">L<sub>rx</sub></span><span class="fval" id="lb-vlrx">2.0 dB</span></div><input type="range" id="lb-lrx" min="0" max="10" step="0.5" value="2" oninput="lbCalc()"><div class="rlim"><span>0</span><span>10 dB</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Sensibilidad RX</span><span class="fval" id="lb-vsrx">−90 dBm</span></div><input type="range" id="lb-srx" min="-120" max="-40" step="1" value="-90" oninput="lbCalc()"><div class="rlim"><span>−120</span><span>−40 dBm</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="ftitle">Fórmula</div>
+          <div class="fbody">
+<span class="fs">FSPL</span> = 20·log(d) + 20·log(f) + <span class="fn">32.44</span>
+<span class="fs">EIRP</span> = P<sub>tx</sub> + G<sub>tx</sub> − L<sub>tx</sub>
+<span class="fs">P<sub>rx</sub></span>  = EIRP − FSPL + G<sub>rx</sub> − L<sub>rx</sub>
+<span class="fs">M</span>    = P<sub>rx</sub> − S<sub>rx</sub>
+          </div>
+        </div>
+      </aside>
+      <div class="rcol">
+        <div class="krow">
+          <div class="kpi"><div class="klabel">EIRP</div><div><span class="kvalue" id="lb-eirp">—</span><span class="kunit">dBm</span></div></div>
+          <div class="kpi"><div class="klabel">FSPL</div><div><span class="kvalue" id="lb-fspl">—</span><span class="kunit">dB</span></div></div>
+          <div class="kpi"><div class="klabel">P recibida</div><div><span class="kvalue" id="lb-prx">—</span><span class="kunit">dBm</span></div></div>
+          <div class="kpi" id="lb-mkpi"><div class="klabel">Margen</div><div><span class="kvalue" id="lb-margin">—</span><span class="kunit">dB</span></div></div>
+        </div>
+        <div class="verdict"><div class="vdot" id="lb-dot"></div><div class="vtxt" id="lb-vtxt">Calculando…</div><div class="vsub" id="lb-vsub"></div></div>
+        <div class="charts2">
+          <div class="chart-card"><div class="ctitle">P<sub>rx</sub> vs Distancia</div><div class="cwrap"><canvas id="lb-chart-dist"></canvas></div></div>
+          <div class="chart-card"><div class="ctitle">Desglose del presupuesto</div><div class="cwrap"><canvas id="lb-chart-budget"></canvas></div></div>
+        </div>
+        <div class="chart-card"><div class="ctitle">Margen vs Frecuencia (distancia fija)</div><div class="cwrap"><canvas id="lb-chart-freq"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 2 — REFLEXIÓN
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-ref">
+  <div class="calc-page">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-tag">02 · REFLEXIÓN / DIFRACCIÓN</div>
+        <h1 class="ph-title">Reflexión y Difracción — Tierra Esférica</h1>
+        <p class="ph-sub">Selección automática de régimen · Coeficiente Fresnel complejo · Factor K</p>
+      </div>
+      <button class="back-btn" onclick="showPage('home')">← Herramientas</button>
+    </div>
+    <div class="layout wide">
+      <aside class="panel">
+        <div class="psec">
+          <div class="slabel">Enlace</div>
+          <div class="field"><div class="fh"><span class="flabel">Frecuencia</span><span class="fval" id="ref-vfreq">38 GHz</span></div><input type="range" id="ref-freq" min="100" max="60000" step="100" value="38000" oninput="refCalc()"><div class="rlim"><span>100 MHz</span><span>60 GHz</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Distancia TX–RX</span><span class="fval" id="ref-vdist">27 km</span></div><input type="range" id="ref-dist" min="1" max="100" step="0.5" value="27" oninput="refCalc()"><div class="rlim"><span>1 km</span><span>100 km</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Factor K</span><span class="fval" id="ref-vK">1.33</span></div><input type="range" id="ref-K" min="0.5" max="2" step="0.05" value="1.333" oninput="refCalc()"><div class="rlim"><span>0.5</span><span>2.0</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Antenas</div>
+          <div class="field"><div class="fh"><span class="flabel">Cota suelo TX</span><span class="fval" id="ref-vctx">15 m</span></div><input type="range" id="ref-ctx" min="0" max="2000" step="5" value="15" oninput="refCalc()"><div class="rlim"><span>0</span><span>2000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura antena TX</span><span class="fval" id="ref-vhtx">8 m</span></div><input type="range" id="ref-htx" min="1" max="200" step="1" value="8" oninput="refCalc()"><div class="rlim"><span>1</span><span>200 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Cota suelo RX</span><span class="fval" id="ref-vcrx">21 m</span></div><input type="range" id="ref-crx" min="0" max="2000" step="5" value="21" oninput="refCalc()"><div class="rlim"><span>0</span><span>2000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura antena RX</span><span class="fval" id="ref-vhrx">6 m</span></div><input type="range" id="ref-hrx" min="1" max="200" step="1" value="6" oninput="refCalc()"><div class="rlim"><span>1</span><span>200 m</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Terreno</div>
+          <div class="field"><div class="fh"><span class="flabel">Tipo</span></div>
+            <select id="ref-terrain" onchange="refCalc()">
+              <option value="mar">Agua de mar (σ=5, εr=70)</option>
+              <option value="humedo">Terreno húmedo (σ=0.01, εr=30)</option>
+              <option value="seco" selected>Terreno seco (σ=0.001, εr=15)</option>
+              <option value="roca">Roca / hormigón (σ=0.0001, εr=5)</option>
+            </select>
+          </div>
+          <div class="field"><div class="fh"><span class="flabel">Polarización</span></div>
+            <select id="ref-pol" onchange="refCalc()"><option value="H">Horizontal (H)</option><option value="V">Vertical (V)</option></select>
+          </div>
+          <div class="field"><div class="fh"><span class="flabel">Rugosidad σ<sub>ee</sub></span><span class="fval" id="ref-vsee">0.0 m</span></div><input type="range" id="ref-see" min="0" max="5" step="0.1" value="0" oninput="refCalc()"><div class="rlim"><span>0 (especular)</span><span>5 m</span></div></div>
+        </div>
+      </aside>
+      <div class="rcol">
+        <div class="krow">
+          <div class="kpi"><div class="klabel">d<sub>maxLOS</sub></div><div><span class="kvalue" id="ref-dlos">—</span><span class="kunit">km</span></div></div>
+          <div class="kpi"><div class="klabel">φ</div><div><span class="kvalue" id="ref-phi">—</span><span class="kunit">mrad</span></div></div>
+          <div class="kpi"><div class="klabel">φ<sub>lím</sub></div><div><span class="kvalue" id="ref-philim">—</span><span class="kunit">mrad</span></div></div>
+          <div class="kpi" id="ref-ladkpi"><div class="klabel">L<sub>ad</sub></div><div><span class="kvalue" id="ref-lad">—</span><span class="kunit">dB</span></div></div>
+        </div>
+        <div class="decision"><div class="dtitle">Régimen detectado</div><div class="dtext info" id="ref-regime">—</div></div>
+        <div class="tbl-wrap"><table><thead><tr><th>Parámetro</th><th>Valor</th></tr></thead><tbody id="ref-tbody"></tbody></table></div>
+        <div class="chart-card"><div class="ctitle">Perfil del enlace (tierra equivalente)</div><div class="cwrap tall"><canvas id="ref-chart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 3 — DIFRACCIÓN TERRENO
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-dif">
+  <div class="calc-page">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-tag">03 · DIFRACCIÓN</div>
+        <h1 class="ph-title">Difracción por Terreno</h1>
+        <p class="ph-sub">Knife-Edge · Bullington · Zona de Fresnel</p>
+      </div>
+      <button class="back-btn" onclick="showPage('home')">← Herramientas</button>
+    </div>
+    <div class="layout wide">
+      <aside class="panel">
+        <div class="psec">
+          <div class="slabel">Enlace</div>
+          <div class="field"><div class="fh"><span class="flabel">Frecuencia</span><span class="fval" id="dif-vfreq">18 GHz</span></div><input type="range" id="dif-freq" min="100" max="60000" step="100" value="18000" oninput="difCalc()"><div class="rlim"><span>100 MHz</span><span>60 GHz</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Distancia total</span><span class="fval" id="dif-vdist">25 km</span></div><input type="range" id="dif-dist" min="1" max="150" step="0.5" value="25" oninput="difCalc()"><div class="rlim"><span>1 km</span><span>150 km</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura TX (abs.)</span><span class="fval" id="dif-vhtx">726 m</span></div><input type="range" id="dif-htx" min="0" max="3000" step="5" value="726" oninput="difCalc()"><div class="rlim"><span>0</span><span>3000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura RX (abs.)</span><span class="fval" id="dif-vhrx">862 m</span></div><input type="range" id="dif-hrx" min="0" max="3000" step="5" value="862" oninput="difCalc()"><div class="rlim"><span>0</span><span>3000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Factor K</span><span class="fval" id="dif-vK">1.33</span></div><input type="range" id="dif-K" min="0.5" max="2" step="0.05" value="1.333" oninput="difCalc()"><div class="rlim"><span>0.5</span><span>2.0</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Obstáculos</div>
+          <div class="obs-head"><span>d (km)</span><span>h (m snm)</span><span></span></div>
+          <div id="dif-obs-list"></div>
+          <button class="obs-add" onclick="difAddObs()">+ Añadir obstáculo</button>
+        </div>
+      </aside>
+      <div class="rcol">
+        <div class="krow3">
+          <div class="kpi"><div class="klabel">Obstáculos activos</div><div><span class="kvalue" id="dif-nobs">—</span></div></div>
+          <div class="kpi"><div class="klabel">Método</div><div><span class="kvalue" id="dif-method" style="font-size:14px">—</span></div></div>
+          <div class="kpi" id="dif-ladkpi"><div class="klabel">L<sub>ad</sub></div><div><span class="kvalue" id="dif-lad">—</span><span class="kunit">dB</span></div></div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>d₁ (km)</th><th>b (m)</th><th>y (m)</th><th>c (m)</th><th>R₁ (m)</th><th>v</th><th>Estado</th></tr></thead><tbody id="dif-tbody"></tbody></table></div>
+        <div class="chart-card"><div class="ctitle">Perfil de obstáculos y zona de Fresnel</div><div class="cwrap tall"><canvas id="dif-chart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 4 — LLUVIA
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-lluvia">
+  <div class="calc-page">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-tag">04 · LLUVIA</div>
+        <h1 class="ph-title">Atenuación por Lluvia</h1>
+        <p class="ph-sub">ITU-R P.838-3 · P.530-17 (terrenal) · P.618 (satelital)</p>
+      </div>
+      <button class="back-btn" onclick="showPage('home')">← Herramientas</button>
+    </div>
+    <div class="layout">
+      <aside class="panel">
+        <div class="psec">
+          <div class="slabel">Tipo de enlace</div>
+          <div class="field"><select id="lluvia-tipo" onchange="lluviaCalc()"><option value="terrenal">Terrenal (P.530)</option><option value="satelital">Satelital (P.618)</option></select></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Parámetros comunes</div>
+          <div class="field"><div class="fh"><span class="flabel">R<sub>0.01</sub></span><span class="fval" id="lluvia-vR">30 mm/h</span></div><input type="range" id="lluvia-R" min="1" max="200" step="1" value="30" oninput="lluviaCalc()"><div class="rlim"><span>1</span><span>200 mm/h</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Frecuencia</span><span class="fval" id="lluvia-vfreq">38 GHz</span></div><input type="range" id="lluvia-freq" min="1" max="100" step="0.5" value="38" oninput="lluviaCalc()"><div class="rlim"><span>1 GHz</span><span>100 GHz</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Polarización</span></div><select id="lluvia-pol" onchange="lluviaCalc()"><option value="H">Horizontal</option><option value="V">Vertical</option></select></div>
+          <div class="field"><div class="fh"><span class="flabel">Margen MD</span><span class="fval" id="lluvia-vMD">30 dB</span></div><input type="range" id="lluvia-MD" min="1" max="60" step="0.5" value="30" oninput="lluviaCalc()"><div class="rlim"><span>1 dB</span><span>60 dB</span></div></div>
+        </div>
+        <div class="psec" id="lluvia-ter-params">
+          <div class="slabel">Terrenal</div>
+          <div class="field"><div class="fh"><span class="flabel">Distancia</span><span class="fval" id="lluvia-vd">15 km</span></div><input type="range" id="lluvia-d" min="0.5" max="60" step="0.5" value="15" oninput="lluviaCalc()"><div class="rlim"><span>0.5 km</span><span>60 km</span></div></div>
+        </div>
+        <div class="psec" id="lluvia-sat-params" style="display:none">
+          <div class="slabel">Satelital</div>
+          <div class="field"><div class="fh"><span class="flabel">Elevación θ</span><span class="fval" id="lluvia-vtheta">30°</span></div><input type="range" id="lluvia-theta" min="5" max="90" step="1" value="30" oninput="lluviaCalc()"><div class="rlim"><span>5°</span><span>90°</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura estación h<sub>s</sub></span><span class="fval" id="lluvia-vhs">0.0 km</span></div><input type="range" id="lluvia-hs" min="0" max="3" step="0.1" value="0" oninput="lluviaCalc()"><div class="rlim"><span>0</span><span>3 km</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Altura isoterma h<sub>0</sub></span><span class="fval" id="lluvia-vh0">3.0 km</span></div><input type="range" id="lluvia-h0" min="1" max="5" step="0.1" value="3" oninput="lluviaCalc()"><div class="rlim"><span>1</span><span>5 km</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="ftitle">k y α — P.838-3</div>
+          <div class="fbody" id="lluvia-kalpha" style="font-size:11px;line-height:1.9">—</div>
+        </div>
+      </aside>
+      <div class="rcol">
+        <div class="krow">
+          <div class="kpi"><div class="klabel">γ<sub>R</sub></div><div><span class="kvalue" id="lluvia-gamma">—</span><span class="kunit">dB/km</span></div></div>
+          <div class="kpi"><div class="klabel">d<sub>eff</sub></div><div><span class="kvalue" id="lluvia-deff">—</span><span class="kunit">km</span></div></div>
+          <div class="kpi"><div class="klabel">F<sub>0.01</sub></div><div><span class="kvalue" id="lluvia-F001">—</span><span class="kunit">dB</span></div></div>
+          <div class="kpi" id="lluvia-qkpi"><div class="klabel">Indisp. lluvia</div><div><span class="kvalue" id="lluvia-q">—</span><span class="kunit">%</span></div></div>
+        </div>
+        <div class="verdict"><div class="vdot" id="lluvia-dot"></div><div class="vtxt" id="lluvia-vtxt">—</div><div class="vsub" id="lluvia-vsub"></div></div>
+        <div class="charts2">
+          <div class="chart-card"><div class="ctitle">F<sub>0.01</sub> vs Frecuencia</div><div class="cwrap"><canvas id="lluvia-chart-freq"></canvas></div></div>
+          <div class="chart-card"><div class="ctitle">Indisponibilidad vs Margen</div><div class="cwrap"><canvas id="lluvia-chart-MD"></canvas></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     PÁGINA 5 — ALTURAS ANTENAS
+═══════════════════════════════════════════════════════════ -->
+<div class="page" id="page-ant">
+  <div class="calc-page">
+    <div class="ph">
+      <div class="ph-left">
+        <div class="ph-tag">05 · ALTURAS</div>
+        <h1 class="ph-title">Cálculo de Alturas de Antenas</h1>
+        <p class="ph-sub">Optimización automática h<sub>et1</sub> y h<sub>et2</sub> · Criterio v<sub>req</sub></p>
+      </div>
+      <button class="back-btn" onclick="showPage('home')">← Herramientas</button>
+    </div>
+    <div class="layout wide">
+      <aside class="panel">
+        <div class="psec">
+          <div class="slabel">Enlace</div>
+          <div class="field"><div class="fh"><span class="flabel">Frecuencia</span><span class="fval" id="ant-vfreq">38 GHz</span></div><input type="range" id="ant-freq" min="100" max="60000" step="100" value="38000" oninput="antCalc()"><div class="rlim"><span>100 MHz</span><span>60 GHz</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Distancia total</span><span class="fval" id="ant-vdist">27 km</span></div><input type="range" id="ant-dist" min="1" max="100" step="0.5" value="27" oninput="antCalc()"><div class="rlim"><span>1 km</span><span>100 km</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Cota TX (snm)</span><span class="fval" id="ant-vetx">15 m</span></div><input type="range" id="ant-etx" min="0" max="2000" step="5" value="15" oninput="antCalc()"><div class="rlim"><span>0</span><span>2000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">Cota RX (snm)</span><span class="fval" id="ant-verx">21 m</span></div><input type="range" id="ant-erx" min="0" max="2000" step="5" value="21" oninput="antCalc()"><div class="rlim"><span>0</span><span>2000 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">v requerido</span><span class="fval" id="ant-vvreq">−0.78</span></div><input type="range" id="ant-vreq" min="-2" max="1" step="0.01" value="-0.78" oninput="antCalc()"><div class="rlim"><span>−2 (holgado)</span><span>1 (rasante)</span></div></div>
+        </div>
+        <div class="psec">
+          <div class="slabel">Obstáculos</div>
+          <div class="obs-head"><span>d (km)</span><span>cota (m)</span><span></span></div>
+          <div id="ant-obs-list"></div>
+          <button class="obs-add" onclick="antAddObs()">+ Añadir obstáculo</button>
+        </div>
+        <div class="psec">
+          <div class="slabel">Rango búsqueda</div>
+          <div class="field"><div class="fh"><span class="flabel">h<sub>et</sub> mín</span><span class="fval" id="ant-vhmin">10 m</span></div><input type="range" id="ant-hmin" min="1" max="50" step="1" value="10" oninput="antCalc()"><div class="rlim"><span>1</span><span>50 m</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">h<sub>et</sub> máx</span><span class="fval" id="ant-vhmax">70 m</span></div><input type="range" id="ant-hmax" min="20" max="300" step="5" value="70" oninput="antCalc()"><div class="rlim"><span>20</span><span>300 m</span></div></div>
+        </div>
+      </aside>
+      <div class="rcol">
+        <div class="krow">
+          <div class="kpi"><div class="klabel">h<sub>et1</sub> óptima</div><div><span class="kvalue" id="ant-het1">—</span><span class="kunit">m</span></div></div>
+          <div class="kpi"><div class="klabel">h<sub>et2</sub> óptima</div><div><span class="kvalue" id="ant-het2">—</span><span class="kunit">m</span></div></div>
+          <div class="kpi"><div class="klabel">v<sub>max</sub> final</div><div><span class="kvalue" id="ant-vmax">—</span></div></div>
+          <div class="kpi" id="ant-statuskpi"><div class="klabel">Estado</div><div><span class="kvalue" id="ant-status" style="font-size:14px">—</span></div></div>
+        </div>
+        <div class="tbl-wrap"><table><thead><tr><th>#</th><th>d₁ (km)</th><th>cota (m)</th><th>b (m)</th><th>y (m)</th><th>c (m)</th><th>R₁ (m)</th><th>v</th><th>Estado</th></tr></thead><tbody id="ant-tbody"></tbody></table></div>
+        <div class="chart-card"><div class="ctitle">Perfil con alturas óptimas y zona de Fresnel</div><div class="cwrap tall"><canvas id="ant-chart"></canvas></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <strong style="color:var(--text2)">calc.teleco</strong> · Herramientas de libre uso para ingeniería de radiocomunicaciones ·
+  <a href="javascript:showPage('lb')">Link Budget</a> · <a href="javascript:showPage('ref')">Reflexión</a> · <a href="javascript:showPage('dif')">Difracción</a> · <a href="javascript:showPage('lluvia')">Lluvia</a> · <a href="javascript:showPage('ant')">Antenas</a>
+</footer>
+
+<!-- ══════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════ -->
+<script>
+// ── NAVEGACIÓN ────────────────────────────────────────────────
+const PAGE_MAP = { home:'page-home', lb:'page-lb', ref:'page-ref', dif:'page-dif', lluvia:'page-lluvia', ant:'page-ant' };
+
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(PAGE_MAP[id]).classList.add('active');
+  if (id !== 'home') {
+    const idx = ['lb','ref','dif','lluvia','ant'].indexOf(id);
+    if (idx >= 0) document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  }
+  window.scrollTo(0, 0);
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+const $   = id => document.getElementById(id);
+const f1  = v  => (+v).toFixed(1);
+const f2  = v  => (+v).toFixed(2);
+const f3  = v  => (+v).toFixed(3);
+const f4  = v  => (+v).toFixed(4);
+const lg  = v  => Math.log10(Math.abs(v) < 1e-30 ? 1e-30 : v);
+const fsplFn = (d_km, f_MHz) => 20*lg(d_km) + 20*lg(f_MHz) + 32.44;
+
+Chart.defaults.font.family = "'Space Grotesk', sans-serif";
+Chart.defaults.font.size   = 11;
+Chart.defaults.color       = '#9aa0ad';
+
+const C = {
+  blue:   '#3b82f6',
+  green:  '#10b981',
+  orange: '#f59e0b',
+  red:    '#ef4444',
+  gray:   '#e4e7ec',
+  sky:    '#38bdf8',
+  purple: '#8b5cf6'
+};
+
+function setVerdictColor(dotId, txtId, color, text, subId, subText) {
+  $(dotId).style.background = color;
+  $(txtId).style.color      = color;
+  $(txtId).textContent      = text;
+  if (subId) $(subId).textContent = subText || '';
+}
+
+function colorStatus(v) {
+  if (v < -0.78) return 'ok';
+  if (v < 0)    return 'warn';
+  return 'bad';
+}
+
+// ── LINK BUDGET ───────────────────────────────────────────────
+const lbChartDist = new Chart($('lb-chart-dist').getContext('2d'), {
+  type:'line', data:{ labels:[], datasets:[
+    { label:'Prx', data:[], borderColor:C.blue, borderWidth:2, pointRadius:0, tension:0.3, fill:false },
+    { label:'Sensibilidad', data:[], borderColor:C.red, borderWidth:1.5, borderDash:[5,4], pointRadius:0, fill:false }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{ display:true, position:'bottom', labels:{ boxWidth:8, padding:10 }}},
+    scales:{ x:{ grid:{color:C.gray}, title:{display:true,text:'Distancia (km)'}}, y:{grid:{color:C.gray},title:{display:true,text:'dBm'}}}}
+});
+
+const lbChartBudget = new Chart($('lb-chart-budget').getContext('2d'), {
+  type:'bar', data:{ labels:['Ptx','Gtx','Ltx','FSPL','Grx','Lrx'],
+    datasets:[{ data:[], backgroundColor:[C.blue,C.green,C.red,C.red,C.green,C.red], borderRadius:4, borderWidth:0 }]},
+  options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:false} },
+    scales:{ x:{grid:{color:C.gray},title:{display:true,text:'Contribución (dB)'}}, y:{grid:{display:false}}}}
+});
+
+const lbChartFreq = new Chart($('lb-chart-freq').getContext('2d'), {
+  type:'line', data:{ labels:[], datasets:[
+    { label:'Margen', data:[], borderColor:C.blue, borderWidth:2, pointRadius:0, tension:0.3,
+      fill:{ target:{value:0}, above:'rgba(59,130,246,0.08)', below:'rgba(239,68,68,0.08)' }},
+    { label:'M=0', data:[], borderColor:C.red, borderWidth:1, borderDash:[4,4], pointRadius:0, fill:false }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false} },
+    scales:{ x:{grid:{color:C.gray},title:{display:true,text:'Frecuencia'}}, y:{grid:{color:C.gray},title:{display:true,text:'Margen (dB)'}}}}
+});
+
+function lbCalc() {
+  const ptx=+$('lb-ptx').value, gtx=+$('lb-gtx').value, ltx=+$('lb-ltx').value;
+  const freq=+$('lb-freq').value, dist=+$('lb-dist').value;
+  const grx=+$('lb-grx').value, lrx=+$('lb-lrx').value, srx=+$('lb-srx').value;
+
+  $('lb-vptx').textContent = f1(ptx)+' dBm';
+  $('lb-vgtx').textContent = f1(gtx)+' dBi';
+  $('lb-vltx').textContent = f1(ltx)+' dB';
+  $('lb-vfreq').textContent = freq>=1000 ? f2(freq/1000)+' GHz' : freq+' MHz';
+  $('lb-vdist').textContent = f1(dist)+' km';
+  $('lb-vgrx').textContent = f1(grx)+' dBi';
+  $('lb-vlrx').textContent = f1(lrx)+' dB';
+  $('lb-vsrx').textContent = (srx<0?'−':'')+f1(Math.abs(srx))+' dBm';
+
+  const FSPL = fsplFn(dist, freq);
+  const EIRP = ptx + gtx - ltx;
+  const Prx  = EIRP - FSPL + grx - lrx;
+  const M    = Prx - srx;
+
+  $('lb-eirp').textContent   = f1(EIRP);
+  $('lb-fspl').textContent   = f1(FSPL);
+  $('lb-prx').textContent    = f1(Prx);
+  $('lb-margin').textContent = f1(M);
+
+  const mkpi = $('lb-mkpi');
+  mkpi.classList.remove('ok','warn','bad');
+  if      (M < 0)  { mkpi.classList.add('bad');  setVerdictColor('lb-dot','lb-vtxt',C.red,    'Enlace cerrado — potencia insuficiente',  'lb-vsub', 'Faltan '+f1(Math.abs(M))+' dB'); }
+  else if (M < 10) { mkpi.classList.add('warn'); setVerdictColor('lb-dot','lb-vtxt',C.orange, 'Enlace marginal — margen insuficiente',   'lb-vsub', 'Margen '+f1(M)+' dB'); }
+  else if (M < 20) { mkpi.classList.add('ok');   setVerdictColor('lb-dot','lb-vtxt',C.green,  'Enlace viable — margen aceptable',        'lb-vsub', 'Margen '+f1(M)+' dB'); }
+  else             { mkpi.classList.add('ok');   setVerdictColor('lb-dot','lb-vtxt',C.blue,   'Enlace robusto — margen excelente',       'lb-vsub', 'Margen '+f1(M)+' dB'); }
+
+  const dMax=Math.max(dist*2.5,20), lbs=[], dPrx=[], dS=[];
+  for(let i=1;i<=60;i++){ const d=i/60*dMax; lbs.push(f1(d)); dPrx.push(EIRP-fsplFn(d,freq)+grx-lrx); dS.push(srx); }
+  lbChartDist.data.labels=lbs; lbChartDist.data.datasets[0].data=dPrx; lbChartDist.data.datasets[1].data=dS; lbChartDist.update('none');
+  lbChartBudget.data.datasets[0].data=[ptx,gtx,-ltx,-FSPL,grx,-lrx]; lbChartBudget.update('none');
+
+  const fMax=Math.max(freq*3,6000), fLbs=[], fM=[], fZ=[];
+  for(let i=1;i<=60;i++){ const fi=100+(i/60)*(fMax-100); fLbs.push(fi>=1000?f1(fi/1000)+'G':Math.round(fi)+''); fM.push(EIRP-fsplFn(dist,fi)+grx-lrx-srx); fZ.push(0); }
+  lbChartFreq.data.labels=fLbs; lbChartFreq.data.datasets[0].data=fM; lbChartFreq.data.datasets[1].data=fZ; lbChartFreq.update('none');
+}
+
+// ── REFLEXIÓN ────────────────────────────────────────────────
+const refChart = new Chart($('ref-chart').getContext('2d'), {
+  type:'line', data:{ labels:[], datasets:[
+    { label:'Rayo directo', data:[], borderColor:C.blue, borderWidth:2, pointRadius:0, fill:false, tension:0 },
+    { label:'Curvatura tierra', data:[], borderColor:C.orange, borderWidth:1.5, borderDash:[4,3], pointRadius:0, fill:false },
+    { label:'Pto. reflexión', data:[], borderColor:C.red, borderWidth:0, pointRadius:7, pointBackgroundColor:C.red, showLine:false }
+  ]},
+  options:{ responsive:true, maintainAspectRatio:false,
+    plugins:{ legend:{display:true,position:'bottom',labels:{boxWidth:8,padding:10}} },
+    scales:{ x:{grid:{color:C.gray},title:{display:true,text:'Distancia (km)'}}, y:{grid:{color:C.gray},title:{display:true,text:'Altura (m)'}}}}
+});
+
+const TERRAIN = { mar:{er:70,sigma:5}, humedo:{er:30,sigma:0.01}, seco:{er:15,sigma:0.001}, roca:{er:5,sigma:0.0001} };
+
+function refCalc() {
+  const freq_Hz=+$('ref-freq').value*1e6, d_m=+$('ref-dist').value*1e3, K=+$('ref-K').value;
+  const ctx_m=+$('ref-ctx').value, htx_m=+$('ref-htx').value;
+  const crx_m=+$('ref-crx').value, hrx_m=+$('ref-hrx').value;
+  const see=+$('ref-see').value, pol=$('ref-pol').value;
+  const {er,sigma}=TERRAIN[$('ref-terrain').value];
+
+  $('ref-vfreq').textContent = freq_Hz>=1e9?f2(freq_Hz/1e9)+' GHz':f1(freq_Hz/1e6)+' MHz';
+  $('ref-vdist').textContent = f1(d_m/1e3)+' km';
+  $('ref-vK').textContent    = (+$('ref-K').value).toFixed(2);
+  $('ref-vctx').textContent  = $('ref-ctx').value+' m';
+  $('ref-vhtx').textContent  = $('ref-htx').value+' m';
+  $('ref-vcrx').textContent  = $('ref-crx').value+' m';
+  $('ref-vhrx').textContent  = $('ref-hrx').value+' m';
+  $('ref-vsee').textContent  = f1(see)+' m';
+
+  const RT=6371e3, Re=K*RT, c0=3e8, lambda=c0/freq_Hz, f_MHz=freq_Hz/1e6;
+  const h1=ctx_m+htx_m, h2=crx_m+hrx_m;
+  const dmaxLOS=Math.sqrt(2*Re*h1)+Math.sqrt(2*Re*h2);
+  const phi_lim=Math.cbrt(5400/f_MHz);
+
+  const p=  (2/Math.sqrt(3))*Math.sqrt(Re*(h1+h2)+d_m*d_m/4);
+  const arg=Math.min(1,Math.max(-1,2*Re*Math.abs(h1-h2)*d_m/Math.pow(p,3)));
+  const phi_aux=Math.acos(arg);
+  let d1,d2;
+  if(h1>=h2){d1=d_m/2+p*Math.cos((Math.PI+phi_aux)/3);d2=d_m-d1;}
+  else      {d2=d_m/2+p*Math.cos((Math.PI+phi_aux)/3);d1=d_m-d2;}
+  const h1p=h1-d1*d1/(2*Re), h2p=h2-d2*d2/(2*Re);
+  const phi=Math.atan(h1p/d1), phi_mrad=phi*1000;
+
+  $('ref-dlos').textContent   = f2(dmaxLOS/1e3);
+  $('ref-phi').textContent    = f3(phi_mrad);
+  $('ref-philim').textContent = f3(phi_lim);
+
+  let Lad=0, regime='', rows=[];
+  const ladkpi=$('ref-ladkpi');
+  ladkpi.classList.remove('ok','warn','bad');
+
+  if(d_m<=dmaxLOS && phi_mrad>=phi_lim){
+    regime='Reflexión — Modelo dos rayos';
+    $('ref-regime').className='dtext info';
+    const delta_l=2*h1p*h2p/d_m;
+    const sp=Math.sin(phi), cp=Math.cos(phi);
+    const A_re=er-cp*cp, A_im=-60*sigma*lambda;
+    const A_mod=Math.sqrt(A_re*A_re+A_im*A_im), A_ang=Math.atan2(A_im,A_re);
+    const sqA_re=Math.sqrt(A_mod)*Math.cos(A_ang/2), sqA_im=Math.sqrt(A_mod)*Math.sin(A_ang/2);
+    let R_re,R_im;
+    if(pol==='H'){
+      const nr=sp-sqA_re,ni=-sqA_im,dr=sp+sqA_re,di=sqA_im,d2v=dr*dr+di*di;
+      R_re=(nr*dr+ni*di)/d2v; R_im=(ni*dr-nr*di)/d2v;
+    } else {
+      const B_re=er*sp,B_im=-60*sigma*lambda*sp;
+      const nr=B_re-sqA_re,ni=B_im-sqA_im,dr=B_re+sqA_re,di=B_im+sqA_im,d2v=dr*dr+di*di;
+      R_re=(nr*dr+ni*di)/d2v; R_im=(ni*dr-nr*di)/d2v;
+    }
+    const d1k=d1/1e3,d2k=d2/1e3,dk=d_m/1e3;
+    const D=Math.pow(1+(5/(16*K))*(d1k*d1k*d2k)/(dk*h1p),-0.5);
+    const gam=(4*Math.PI*see*sp)/lambda;
+    const R_mod=Math.sqrt(R_re*R_re+R_im*R_im);
+    const Re_eff=R_mod*D*Math.exp(-gam*gam/2);
+    const ang_R=Math.atan2(R_im,R_re), phasor=2*Math.PI*delta_l/lambda;
+    const tot_re=1+Re_eff*Math.cos(ang_R-phasor), tot_im=Re_eff*Math.sin(ang_R-phasor);
+    Lad=-20*lg(Math.sqrt(tot_re*tot_re+tot_im*tot_im));
+    rows=[['Δl (dif. camino)',f4(delta_l)+' m'],['|R| Fresnel',f4(R_mod)],['D (divergencia)',f4(D)],['γ (rugosidad)',f4(gam)],['|R_e| efectivo',f4(Re_eff)]];
+    ladkpi.classList.add(Lad>3?'warn':'ok');
+  } else {
+    const over=d_m>dmaxLOS;
+    regime=over?'Tierra esférica — despejamiento positivo':'Tierra esférica — despejamiento negativo';
+    $('ref-regime').className='dtext warn';
+    const a=over?Re:0.5*Math.pow(d_m/(Math.sqrt(h1)+Math.sqrt(h2)),2);
+    const nu=Math.pow(2*Math.PI*a/lambda,-1/3)*Math.pow((er-1)*(er-1)+(60*sigma*lambda)*(60*sigma*lambda),-0.25);
+    const beta=(1+1.6*nu*nu+0.75*Math.pow(nu,4))/(1+4.5*nu*nu+1.35*Math.pow(nu,4));
+    const X=beta*Math.pow(Math.PI/(lambda*a*a),1/3)*d_m;
+    const Y1=2*beta*Math.pow(Math.PI*Math.PI/(lambda*lambda*a),1/3)*h1;
+    const Y2=2*beta*Math.pow(Math.PI*Math.PI/(lambda*lambda*a),1/3)*h2;
+    const FX=X>=1.6?11+lg(X)-17.6*X:-20*lg(X)-5.6488*Math.pow(X,1.425);
+    const gY=bY=>{const v=beta*bY;return v>2?17.6*Math.sqrt(v-1.1)-5*lg(v-1.1)-8:20*lg(v+0.1*v*v*v);};
+    const GY1=Math.max(gY(Y1),2+20*lg(nu)), GY2=Math.max(gY(Y2),2+20*lg(nu));
+    const L_base=-FX-GY1-GY2;
+    if(!over){const m=(h2p-h1p)/(d1+d2),y=m*d1+h1p,cv=-y,R1=Math.sqrt(lambda*d1*d2/(d1+d2)),v=Math.sqrt(2)*cv/R1;Lad=v<=-0.78?0:(1-v/(-0.78))*L_base;}
+    else{Lad=L_base;}
+    rows=[['a (radio efect.)',f2(a)+' m'],['ν',f4(nu)],['β',f4(beta)],['X',f4(X)],['Y1',f4(Y1)],['Y2',f4(Y2)],['F(X)',f4(FX)],['G(Y1)',f4(GY1)],['G(Y2)',f4(GY2)]];
+    ladkpi.classList.add('bad');
+  }
+
+  $('ref-lad').textContent=$('ref-regime').textContent=regime; $('ref-lad').textContent=f2(Lad); $('ref-regime').textContent=regime;
+  $('ref-tbody').innerHTML=rows.map(([p,v])=>`<tr><td>${p}</td><td>${v}</td></tr>`).join('');
+
+  const s2=80,lbs2=[],ray=[],tier=[],refl=[];
+  const slope=(h2-h1)/d_m;
+  for(let i=0;i<=s2;i++){const d=i/s2*d_m;lbs2.push(f1(d/1e3));ray.push(h1+slope*d);tier.push(d*d/(2*Re));refl.push(null);}
+  const ri=Math.round(d1/d_m*s2);if(ri>=0&&ri<=s2)refl[ri]=h1p;
+  refChart.data.labels=lbs2;refChart.data.datasets[0].data=ray;refChart.data.datasets[1].data=tier;refChart.data.datasets[2].data=refl;refChart.update('none');
+}
+
+// ── DIFRACCIÓN ────────────────────────────────────────────────
+let difObsList=[{d:4.6,h:741},{d:8.95,h:750},{d:11.32,h:775},{d:17.83,h:810},{d:21.4,h:832}];
+
+const difChart=new Chart($('dif-chart').getContext('2d'),{
+  type:'line',data:{labels:[],datasets:[
+    {label:'Rayo óptico',data:[],borderColor:C.blue,borderWidth:2,pointRadius:0,fill:false,tension:0},
+    {label:'Fresnel +R1',data:[],borderColor:C.sky,borderWidth:0,fill:'+2',backgroundColor:'rgba(56,189,248,0.07)',pointRadius:0,tension:0.3},
+    {label:'Fresnel −R1',data:[],borderColor:C.sky,borderWidth:0,fill:false,pointRadius:0,tension:0.3},
+    {label:'Obstáculos',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,padding:10}}},
+    scales:{x:{grid:{color:C.gray},title:{display:true,text:'Distancia (km)'}},y:{grid:{color:C.gray},title:{display:true,text:'Altura (m)'}}}}
+});
+
+function difRenderObs(){
+  const el=$('dif-obs-list');el.innerHTML='';
+  difObsList.forEach((o,i)=>{
+    const r=document.createElement('div');r.className='obs-row';
+    r.innerHTML=`<input type="number" value="${o.d}" step="0.1" oninput="difObsList[${i}].d=+this.value;difCalc()"><input type="number" value="${o.h}" step="1" oninput="difObsList[${i}].h=+this.value;difCalc()"><button class="obs-del" onclick="difObsList.splice(${i},1);difRenderObs();difCalc()">×</button>`;
+    el.appendChild(r);
+  });
+}
+function difAddObs(){difObsList.push({d:(difObsList[difObsList.length-1]?.d||5)+2,h:500});difRenderObs();difCalc();}
+
+function difCalc(){
+  const freq_Hz=+$('dif-freq').value*1e6,d_tot=+$('dif-dist').value*1e3;
+  const h_tx=+$('dif-htx').value,h_rx=+$('dif-hrx').value,K=+$('dif-K').value,RT=6371e3;
+  $('dif-vfreq').textContent=freq_Hz>=1e9?f2(freq_Hz/1e9)+' GHz':f1(freq_Hz/1e6)+' MHz';
+  $('dif-vdist').textContent=f1(d_tot/1e3)+' km';
+  $('dif-vhtx').textContent=$('dif-htx').value+' m';
+  $('dif-vhrx').textContent=$('dif-hrx').value+' m';
+  $('dif-vK').textContent=(+$('dif-K').value).toFixed(2);
+  const lambda=3e8/freq_Hz;
+  const obs=difObsList.filter(o=>o.d>0&&o.d<d_tot/1e3).map(o=>({d1:o.d*1e3,h:o.h})).sort((a,b)=>a.d1-b.d1);
+  const results=obs.map(o=>{const d1=o.d1,d2=d_tot-d1,b=d1*d2/(2*K*RT),y=h_tx+(h_rx-h_tx)*d1/d_tot,c=b+o.h-y,R1=Math.sqrt(lambda*d1*d2/(d1+d2)),v=Math.sqrt(2)*c/R1;return{d1,d2,b,y,c,R1,v,h:o.h};});
+  $('dif-nobs').textContent=results.length;
+  const val=results.filter(r=>r.v>-0.78);
+  let Lad=0,method='';
+  const lk=$('dif-ladkpi');lk.classList.remove('ok','warn','bad');
+  if(val.length===0){method='Sin difracción';Lad=0;lk.classList.add('ok');}
+  else if(val.length===1){method='Knife-Edge';const v=val[0].v;Lad=6.9+20*lg(Math.sqrt((v-0.1)*(v-0.1)+1)+v-0.1);lk.classList.add('bad');}
+  else{
+    method='Bullington';
+    let m1=-1e9,m2=-1e9;
+    results.forEach(r=>{m1=Math.max(m1,(r.h+r.b-h_tx)/r.d1);m2=Math.max(m2,(r.h+r.b-h_rx)/r.d2);});
+    let Lcu;
+    if(m1<=m2){const vmax=Math.max(...results.map(r=>r.v));Lcu=Math.max(0,6.9+20*lg(Math.sqrt((vmax-0.1)*(vmax-0.1)+1)+vmax-0.1));}
+    else{const d1f=(m2*d_tot+h_rx-h_tx)/(m1+m2),d2f=d_tot-d1f,hf=m1*d1f+h_tx,yf=h_tx+(h_rx-h_tx)*d1f/d_tot,cf=hf-yf,R1f=Math.sqrt(lambda*d1f*d2f/(d1f+d2f)),vf=Math.sqrt(2)*cf/R1f;Lcu=Math.max(0,6.9+20*lg(Math.sqrt((vf-0.1)*(vf-0.1)+1)+vf-0.1));}
+    Lad=Lcu+(1-Math.exp(-Lcu/6))*(10+0.02*d_tot/1e3);
+    lk.classList.add('bad');
+  }
+  $('dif-method').textContent=method;$('dif-lad').textContent=f2(Lad);
+  $('dif-tbody').innerHTML=results.map((r,i)=>{const st=colorStatus(r.v);return`<tr><td>${i+1}</td><td>${f2(r.d1/1e3)}</td><td>${f2(r.b)}</td><td>${f2(r.y)}</td><td class="${st}">${f2(r.c)}</td><td>${f2(r.R1)}</td><td class="${st}">${f2(r.v)}</td><td class="${st}">${r.v>-0.78?'Difracta':'Libre'}</td></tr>`;}).join('');
+  const s=100,lb2=[],ray=[],fu=[],fd=[],od=Array(s+1).fill(null);
+  const slope=(h_rx-h_tx)/d_tot;
+  for(let i=0;i<=s;i++){const d=i/s*d_tot,d2=d_tot-d;lb2.push(f1(d/1e3));const yr=h_tx+slope*d;ray.push(yr);const R1v=d>0&&d2>0?Math.sqrt(lambda*d*d2/(d+d2)):0;fu.push(yr+R1v);fd.push(yr-R1v);}
+  results.forEach(r=>{const idx=Math.round(r.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=r.h;});
+  difChart.data.labels=lb2;difChart.data.datasets[0].data=ray;difChart.data.datasets[1].data=fu;difChart.data.datasets[2].data=fd;difChart.data.datasets[3].data=od;difChart.update('none');
+}
+
+// ── LLUVIA ────────────────────────────────────────────────────
+const P838_f=[1,2,4,6,7,8,10,12,15,20,25,30,35,40,45,50,60,70,80,100];
+const P838_kH=[0.0000387,0.000154,0.000650,0.00175,0.00301,0.00454,0.0101,0.0188,0.0367,0.0751,0.124,0.187,0.263,0.350,0.442,0.536,0.707,0.851,0.975,1.06];
+const P838_aH=[0.912,0.963,1.121,1.308,1.332,1.327,1.276,1.217,1.154,1.099,1.061,1.021,0.979,0.939,0.903,0.873,0.826,0.793,0.769,0.753];
+const P838_kV=[0.0000352,0.000138,0.000591,0.00155,0.00265,0.00395,0.00887,0.0168,0.0335,0.0691,0.113,0.167,0.233,0.310,0.393,0.479,0.642,0.784,0.906,0.999];
+const P838_aV=[0.880,0.923,1.075,1.265,1.312,1.310,1.264,1.200,1.128,1.065,1.030,1.000,0.963,0.929,0.897,0.868,0.824,0.793,0.769,0.754];
+
+function p838(f_GHz,pol){
+  const kA=pol==='H'?P838_kH:P838_kV,aA=pol==='H'?P838_aH:P838_aV;
+  const f=Math.min(Math.max(f_GHz,1),100);
+  for(let i=0;i<P838_f.length-1;i++){
+    if(f>=P838_f[i]&&f<=P838_f[i+1]){
+      const t=(Math.log10(f)-Math.log10(P838_f[i]))/(Math.log10(P838_f[i+1])-Math.log10(P838_f[i]));
+      return{k:Math.pow(10,Math.log10(kA[i])*(1-t)+Math.log10(kA[i+1])*t),a:aA[i]*(1-t)+aA[i+1]*t};
+    }
+  }
+  return{k:kA[kA.length-1],a:aA[aA.length-1]};
+}
+
+const lluviaChartFreq=new Chart($('lluvia-chart-freq').getContext('2d'),{
+  type:'line',data:{labels:[],datasets:[{label:'F0.01 (dB)',data:[],borderColor:C.blue,borderWidth:2,pointRadius:0,tension:0.3,fill:'origin',backgroundColor:'rgba(59,130,246,0.07)'}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:C.gray},title:{display:true,text:'Frecuencia (GHz)'}},y:{grid:{color:C.gray},title:{display:true,text:'F0.01 (dB)'}}}}
+});
+const lluviaChartMD=new Chart($('lluvia-chart-MD').getContext('2d'),{
+  type:'line',data:{labels:[],datasets:[{label:'q (%)',data:[],borderColor:C.red,borderWidth:2,pointRadius:0,tension:0.3,fill:false}]},
+  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:C.gray},title:{display:true,text:'Margen MD (dB)'}},y:{grid:{color:C.gray},title:{display:true,text:'Indisp. (%)'},type:'logarithmic'}}}
+});
+
+function lluviaCalc(){
+  const tipo=$('lluvia-tipo').value,R001=+$('lluvia-R').value,f_GHz=+$('lluvia-freq').value,pol=$('lluvia-pol').value,MD=+$('lluvia-MD').value;
+  $('lluvia-vR').textContent=f1(R001)+' mm/h';$('lluvia-vfreq').textContent=f1(f_GHz)+' GHz';$('lluvia-vMD').textContent=f1(MD)+' dB';
+  $('lluvia-ter-params').style.display=tipo==='terrenal'?'':'none';
+  $('lluvia-sat-params').style.display=tipo==='satelital'?'':'none';
+  const{k,a}=p838(f_GHz,pol);
+  $('lluvia-kalpha').innerHTML=`k = <span style="color:var(--accent);font-weight:500">${k.toExponential(4)}</span><br>α = <span style="color:var(--accent);font-weight:500">${f4(a)}</span><br><span style="color:var(--text3);font-size:10px">P.838-3 · Pol. ${pol} · ${f1(f_GHz)} GHz</span>`;
+  const gammaR=k*Math.pow(R001,a);
+  let deff,F001;
+  if(tipo==='terrenal'){
+    const d_km=+$('lluvia-d').value;$('lluvia-vd').textContent=f1(d_km)+' km';
+    const den=0.477*Math.pow(d_km,0.633)*Math.pow(R001,0.073*a)*Math.pow(f_GHz,0.123)-10.579*(1-Math.exp(-0.024*d_km));
+    deff=d_km/den;F001=gammaR*deff;
+  } else {
+    const theta=+$('lluvia-theta').value,hs=+$('lluvia-hs').value,h0=+$('lluvia-h0').value;
+    $('lluvia-vtheta').textContent=theta+'°';$('lluvia-vhs').textContent=f1(hs)+' km';$('lluvia-vh0').textContent=f1(h0)+' km';
+    const hR=h0+0.36,hnMET=hs,thR=theta*Math.PI/180;
+    const Ls=theta>=5?(hR-hnMET)/Math.sin(thR):2*(hR-hnMET)/(Math.sqrt(Math.pow(Math.sin(thR),2)+2*(hR-hnMET)/6371)+Math.sin(thR));
+    const Lg=Ls*Math.cos(thR),r001=1/(1+0.78*Math.sqrt(Lg*gammaR/f_GHz)-0.38*(1-Math.exp(-2*Lg)));
+    const thr=Math.atan((hR-hnMET)/(Lg*r001))*180/Math.PI;
+    const Lr=thr>theta?Lg*r001/Math.cos(thR):(hR-hnMET)/Math.sin(thR);
+    const eps=Math.max(0,36-Math.abs(0)),v001=1/(1+Math.sqrt(Math.sin(thR))*(31*(1-Math.exp(-theta/(1+eps)))*Math.sqrt(Lr*gammaR)/f_GHz/f_GHz-0.45));
+    deff=Lr*v001;F001=gammaR*deff;
+  }
+  $('lluvia-gamma').textContent=f3(gammaR);$('lluvia-deff').textContent=f2(deff);$('lluvia-F001').textContent=f2(F001);
+  let q;
+  if(tipo==='terrenal'){
+    const C0=f_GHz>=10?0.12+0.4*lg(Math.pow(f_GHz/10,0.8)):0.12;
+    const C1=Math.pow(0.07,C0)*Math.pow(0.12,1-C0),C2=0.855*C0+0.546*(1-C0),C3=0.139*C0+0.043*(1-C0);
+    const Fq=qv=>F001*C1*Math.pow(qv,-(C2+C3*lg(qv)));
+    let lo=1e-6,hi=2,mid;for(let i=0;i<60;i++){mid=(lo+hi)/2;if(Fq(mid)>MD)lo=mid;else hi=mid;}q=mid;
+  } else {
+    const A=0.033,B=0.655+0.152-0.045*Math.log(F001),Cv=Math.log(MD)+3.0163-1.2072*Math.log(F001);
+    const disc=B*B-4*A*Cv;q=Math.max(Math.exp((-B+Math.sqrt(Math.max(0,disc)))/(2*A)),Math.exp((-B-Math.sqrt(Math.max(0,disc)))/(2*A)));
+  }
+  q=Math.max(1e-6,Math.min(q,100));
+  $('lluvia-q').textContent=q<0.001?q.toExponential(2):f3(q);
+  const qkpi=$('lluvia-qkpi');qkpi.classList.remove('ok','warn','bad');
+  if(q<0.01){qkpi.classList.add('ok');setVerdictColor('lluvia-dot','lluvia-vtxt',C.green,'Sistema muy robusto — q < 0.01 %','lluvia-vsub','Disponibilidad '+f4(100-q)+' %');}
+  else if(q<0.1){qkpi.classList.add('warn');setVerdictColor('lluvia-dot','lluvia-vtxt',C.orange,'Radioenlace típico — 0.01 % < q < 0.1 %','lluvia-vsub','Disponibilidad '+f4(100-q)+' %');}
+  else{qkpi.classList.add('bad');setVerdictColor('lluvia-dot','lluvia-vtxt',C.red,'Disponibilidad baja — q > 0.1 %','lluvia-vsub','Disponibilidad '+f4(100-q)+' %');}
+
+  const fl=[],fF=[];
+  for(let i=1;i<=60;i++){const fg=1+i/60*99;const{k:ki,a:ai}=p838(fg,pol);fl.push(f1(fg));fF.push(ki*Math.pow(R001,ai)*deff);}
+  lluviaChartFreq.data.labels=fl;lluviaChartFreq.data.datasets[0].data=fF;lluviaChartFreq.update('none');
+
+  const C0v=f_GHz>=10?0.12+0.4*lg(Math.pow(f_GHz/10,0.8)):0.12;
+  const C1v=Math.pow(0.07,C0v)*Math.pow(0.12,1-C0v),C2v=0.855*C0v+0.546*(1-C0v),C3v=0.139*C0v+0.043*(1-C0v);
+  const ml=[],mQ=[];
+  for(let i=1;i<=60;i++){
+    const mdv=1+i/60*59;let qv;
+    if(tipo==='terrenal'){const Fq=qx=>F001*C1v*Math.pow(qx,-(C2v+C3v*lg(qx)));let lo=1e-6,hi=2,m2;for(let j=0;j<50;j++){m2=(lo+hi)/2;if(Fq(m2)>mdv)lo=m2;else hi=m2;}qv=m2;}
+    else{const A=0.033,B=0.655+0.152-0.045*Math.log(F001),Cv2=Math.log(mdv)+3.0163-1.2072*Math.log(F001);const disc=B*B-4*A*Cv2;qv=Math.max(1e-6,Math.exp((-B+Math.sqrt(Math.max(0,disc)))/(2*A)));}
+    ml.push(f1(mdv));mQ.push(Math.max(1e-6,Math.min(qv,100)));
+  }
+  lluviaChartMD.data.labels=ml;lluviaChartMD.data.datasets[0].data=mQ;lluviaChartMD.update('none');
+}
+
+// ── ALTURAS ANTENAS ───────────────────────────────────────────
+let antObsList=[{d:4,h:730},{d:9.5,h:740},{d:12.4,h:765},{d:16,h:750},{d:24,h:805}];
+
+const antChart=new Chart($('ant-chart').getContext('2d'),{
+  type:'line',data:{labels:[],datasets:[
+    {label:'Rayo óptico',data:[],borderColor:C.blue,borderWidth:2,pointRadius:0,fill:false,tension:0},
+    {label:'Fresnel +R1',data:[],borderColor:C.sky,borderWidth:0,fill:'+2',backgroundColor:'rgba(56,189,248,0.07)',pointRadius:0,tension:0.3},
+    {label:'Fresnel −R1',data:[],borderColor:C.sky,borderWidth:0,fill:false,pointRadius:0,tension:0.3},
+    {label:'Obstáculos',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
+  ]},
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,padding:10}}},
+    scales:{x:{grid:{color:C.gray},title:{display:true,text:'Distancia (km)'}},y:{grid:{color:C.gray},title:{display:true,text:'Altura snm (m)'}}}}
+});
+
+function antRenderObs(){
+  const el=$('ant-obs-list');el.innerHTML='';
+  antObsList.forEach((o,i)=>{
+    const r=document.createElement('div');r.className='obs-row';
+    r.innerHTML=`<input type="number" value="${o.d}" step="0.1" oninput="antObsList[${i}].d=+this.value;antCalc()"><input type="number" value="${o.h}" step="1" oninput="antObsList[${i}].h=+this.value;antCalc()"><button class="obs-del" onclick="antObsList.splice(${i},1);antRenderObs();antCalc()">×</button>`;
+    el.appendChild(r);
+  });
+}
+function antAddObs(){antObsList.push({d:(antObsList[antObsList.length-1]?.d||5)+2,h:500});antRenderObs();antCalc();}
+
+function antCalc(){
+  const freq_Hz=+$('ant-freq').value*1e6,d_tot=+$('ant-dist').value*1e3;
+  const ee_tx=+$('ant-etx').value,ee_rx=+$('ant-erx').value;
+  const v_req=+$('ant-vreq').value,hmin=+$('ant-hmin').value,hmax=+$('ant-hmax').value;
+  const K=4/3,RT=6371e3,lambda=3e8/freq_Hz;
+  $('ant-vfreq').textContent=freq_Hz>=1e9?f2(freq_Hz/1e9)+' GHz':f1(freq_Hz/1e6)+' MHz';
+  $('ant-vdist').textContent=f1(d_tot/1e3)+' km';
+  $('ant-vetx').textContent=$('ant-etx').value+' m';$('ant-verx').textContent=$('ant-erx').value+' m';
+  $('ant-vvreq').textContent=f2(v_req);$('ant-vhmin').textContent=hmin+' m';$('ant-vhmax').textContent=hmax+' m';
+  const obs=antObsList.filter(o=>o.d>0&&o.d<d_tot/1e3).map(o=>({d1:o.d*1e3,ee:o.h})).sort((a,b)=>a.d1-b.d1);
+  if(obs.length===0){$('ant-het1').textContent='—';$('ant-het2').textContent='—';$('ant-vmax').textContent='—';$('ant-status').textContent='Sin obs.';return;}
+  const d1a=obs.map(o=>o.d1),d2a=obs.map(o=>d_tot-o.d1),eeA=obs.map(o=>o.ee);
+  const b=d1a.map((d1,i)=>d1*d2a[i]/(2*K*RT));
+  const R1=d1a.map((d1,i)=>Math.sqrt(lambda*d1*d2a[i]/(d1+d2a[i])));
+  let het1=hmin,het2=hmin,found=false;
+  outer:for(let h1=hmin;h1<=hmax;h1++){for(let h2=hmin;h2<=hmax;h2++){
+    const sl=((ee_rx+h2)-(ee_tx+h1))/d_tot;
+    const y=d1a.map(d1=>sl*d1+ee_tx+h1);
+    const c=eeA.map((e,i)=>e+b[i]-y[i]);
+    const v=c.map((ci,i)=>Math.sqrt(2)*ci/R1[i]);
+    if(Math.max(...v)<=v_req){het1=h1;het2=h2;found=true;break outer;}
+  }}
+  const sl2=((ee_rx+het2)-(ee_tx+het1))/d_tot;
+  const y2=d1a.map(d1=>sl2*d1+ee_tx+het1);
+  const c2=eeA.map((e,i)=>e+b[i]-y2[i]);
+  const v2=c2.map((ci,i)=>Math.sqrt(2)*ci/R1[i]);
+  const vmax=Math.max(...v2);
+  $('ant-het1').textContent=found?het1:'?';$('ant-het2').textContent=found?het2:'?';$('ant-vmax').textContent=f3(vmax);
+  const sk=$('ant-statuskpi');sk.classList.remove('ok','warn','bad');
+  if(!found){sk.classList.add('bad');$('ant-status').textContent='Sin solución';}
+  else if(vmax<=v_req){sk.classList.add('ok');$('ant-status').textContent='✓ Despejado';}
+  else{sk.classList.add('warn');$('ant-status').textContent='⚠ Revisar';}
+  $('ant-tbody').innerHTML=obs.map((o,i)=>{const st=colorStatus(v2[i]);return`<tr><td>${i+1}</td><td>${f2(o.d1/1e3)}</td><td>${o.ee}</td><td>${f2(b[i])}</td><td>${f2(y2[i])}</td><td class="${st}">${f2(c2[i])}</td><td>${f2(R1[i])}</td><td>${f3(v2[i])}</td><td class="${st}">${v2[i]<=v_req?'✓ OK':'✗ Obstruido'}</td></tr>`;}).join('');
+  const s=100,lb2=[],ray=[],fu=[],fd=[],od=Array(s+1).fill(null);
+  const slope2=sl2;
+  for(let i=0;i<=s;i++){const d=i/s*d_tot,d2=d_tot-d;lb2.push(f1(d/1e3));const yr=ee_tx+het1+slope2*d;ray.push(yr);const R1v=d>0&&d2>0?Math.sqrt(lambda*d*d2/(d+d2)):0;fu.push(yr+R1v);fd.push(yr-R1v);}
+  obs.forEach(o=>{const idx=Math.round(o.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=o.ee;});
+  antChart.data.labels=lb2;antChart.data.datasets[0].data=ray;antChart.data.datasets[1].data=fu;antChart.data.datasets[2].data=fd;antChart.data.datasets[3].data=od;antChart.update('none');
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+difRenderObs();
+antRenderObs();
+lbCalc();
+refCalc();
+difCalc();
+lluviaCalc();
+antCalc();
+</script>
+</body>
+</html>
