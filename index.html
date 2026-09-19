@@ -242,6 +242,7 @@
       transition: border-color .15s;
     }
     input[type="number"]:focus { border-color: var(--accent); }
+    input[type="number"].num-inline.out-of-range { border-color: var(--bad); color: var(--bad); }
     input[type="number"]::-webkit-outer-spin-button,
     input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; }
 
@@ -573,7 +574,7 @@
         </div>
         <div class="psec">
           <div class="slabel">Parámetros comunes</div>
-          <div class="field"><div class="fh"><span class="flabel">R<sub>0.01</sub> (mm/h)</span></div><div class="slider-row"><input type="range" id="lluvia-R" min="1" max="200" step="0.001" value="30" oninput="syncNum('lluvia-R','lluvia-nR');lluviaCalc()"><input class="num-inline" type="number" id="lluvia-nR" min="1" max="200" step="0.001" value="30" oninput="syncSlider('lluvia-nR','lluvia-R');lluviaCalc()"></div><div class="rlim"><span>1 mm/h</span><span>200 mm/h</span></div></div>
+          <div class="field"><div class="fh"><span class="flabel">R<sub>0.01</sub> (mm/h)</span></div><div class="slider-row"><input type="range" id="lluvia-R" min="1" max="200" step="0.001" value="30" oninput="syncNum('lluvia-R','lluvia-nR');lluviaCalc()"><input class="num-inline" type="number" id="lluvia-nR" min="1" max="200" step="0.001" value="30" oninput="syncSlider('lluvia-nR','lluvia-R');lluviaCalc()"></div><div class="rlim"><span>1 mm/h</span><span>200 mm/h</span></div><div class="rlim" style="display:block;margin-top:2px">Introduce el R<sub>0.01</sub> de tu zona (UIT-R P.837).</div></div>
           <div class="field"><div class="fh"><span class="flabel">Frecuencia (GHz)</span></div><div class="slider-row"><input type="range" id="lluvia-freq" min="1" max="100" step="0.001" value="38" oninput="syncNum('lluvia-freq','lluvia-nfreq');lluviaCalc()"><input class="num-inline" type="number" id="lluvia-nfreq" min="1" max="100" step="0.001" value="38" oninput="syncSlider('lluvia-nfreq','lluvia-freq');lluviaCalc()"></div><div class="rlim"><span>1 GHz</span><span>100 GHz</span></div></div>
           <div class="field"><div class="fh"><span class="flabel">Polarización</span></div><select id="lluvia-pol" onchange="lluviaCalc()"><option value="H">Horizontal</option><option value="V">Vertical</option></select></div>
           <div class="field"><div class="fh"><span class="flabel">Margen MD (dB)</span></div><div class="slider-row"><input type="range" id="lluvia-MD" min="1" max="60" step="0.001" value="30" oninput="syncNum('lluvia-MD','lluvia-nMD');lluviaCalc()"><input class="num-inline" type="number" id="lluvia-nMD" min="1" max="60" step="0.001" value="30" oninput="syncSlider('lluvia-nMD','lluvia-MD');lluviaCalc()"></div><div class="rlim"><span>1 dB</span><span>60 dB</span></div></div>
@@ -702,18 +703,40 @@ function syncNum(sliderId, numId) {
   const s = $(sliderId), n = $(numId);
   if (!s || !n) return;
   n.value = parseFloat(s.value);
+  n.classList.remove('out-of-range'); n.title = '';
 }
-// Called from number box oninput → clamps to slider range only if value is within slider's visible range
-// For ant-nhmax the number box allows values beyond the slider max — we clamp the slider but keep the number
+// Called from number box oninput → mueve el slider (solo visual) y avisa si el valor está fuera de rango.
+// Los cálculos leen la caja numérica mediante nv(), no el slider, así que lo tecleado es lo que se usa.
 function syncSlider(numId, sliderId) {
   const n = $(numId), s = $(sliderId);
   if (!s || !n) return;
-  const val = parseFloat(n.value);
-  if (isNaN(val)) return;
-  const mn = parseFloat(s.min), mx = parseFloat(s.max);
-  s.value = Math.min(Math.max(val, mn), mx);
-  // Number box is NOT modified here — user is still typing
+  const val = parseFloat(n.value), lo = parseFloat(n.min), hi = parseFloat(n.max);
+  const bad = !isFinite(val) || val < lo || val > hi;
+  n.classList.toggle('out-of-range', bad);
+  n.title = bad ? `Valor fuera de rango (${n.min} – ${n.max}). Se usa el límite más cercano.` : '';
+  if (!isFinite(val)) return;
+  s.value = Math.min(Math.max(val, parseFloat(s.min)), parseFloat(s.max));
 }
+// Pares slider → caja numérica
+const NUMOF = {'lb-ptx':'lb-nptx', 'lb-gtx':'lb-ngtx', 'lb-ltx':'lb-nltx', 'lb-freq':'lb-nfreq', 'lb-dist':'lb-ndist', 'lb-grx':'lb-ngrx', 'lb-lrx':'lb-nlrx', 'lb-srx':'lb-nsrx', 'ref-freq':'ref-nfreq', 'ref-dist':'ref-ndist', 'ref-K':'ref-nK', 'ref-ctx':'ref-nctx', 'ref-htx':'ref-nhtx', 'ref-crx':'ref-ncrx', 'ref-hrx':'ref-nhrx', 'ref-see':'ref-nsee', 'dif-freq':'dif-nfreq', 'dif-dist':'dif-ndist', 'dif-htx':'dif-nhtx', 'dif-hrx':'dif-nhrx', 'dif-K':'dif-nK', 'lluvia-R':'lluvia-nR', 'lluvia-freq':'lluvia-nfreq', 'lluvia-MD':'lluvia-nMD', 'lluvia-d':'lluvia-nd', 'lluvia-theta':'lluvia-ntheta', 'lluvia-lat':'lluvia-nlat', 'lluvia-hs':'lluvia-nhs', 'lluvia-h0':'lluvia-nh0', 'ant-freq':'ant-nfreq', 'ant-dist':'ant-ndist', 'ant-etx':'ant-netx', 'ant-erx':'ant-nerx', 'ant-vreq':'ant-nvreq', 'ant-hmin':'ant-nhmin', 'ant-hmax':'ant-nhmax'};
+const SLIDEROF = Object.fromEntries(Object.entries(NUMOF).map(([s, n]) => [n, s]));
+// Valor efectivo de un parámetro: el de la caja numérica, acotado a su rango [min, max].
+// Si la caja está vacía o incompleta (mientras se teclea) se usa el valor del slider.
+function nv(id) {
+  const n = $(NUMOF[id]);
+  if (!n) return +$(id).value;
+  const v = parseFloat(n.value);
+  if (!isFinite(v)) return +$(id).value;
+  const lo = parseFloat(n.min), hi = parseFloat(n.max);
+  return Math.min(Math.max(v, isNaN(lo) ? -Infinity : lo), isNaN(hi) ? Infinity : hi);
+}
+// Al terminar de teclear (Enter / perder el foco) la caja muestra el valor realmente usado
+document.querySelectorAll('.num-inline').forEach(n => n.addEventListener('change', () => {
+  const sid = SLIDEROF[n.id]; if (!sid) return;
+  n.value = nv(sid);
+  n.classList.remove('out-of-range'); n.title = '';
+  syncSlider(n.id, sid);
+}));
 
 Chart.defaults.font.family = "'Space Grotesk', sans-serif";
 Chart.defaults.font.size   = 11;
@@ -772,9 +795,9 @@ const lbChartFreq = new Chart($('lb-chart-freq').getContext('2d'), {
 });
 
 function lbCalc() {
-  const ptx=+$('lb-ptx').value, gtx=+$('lb-gtx').value, ltx=+$('lb-ltx').value;
-  const freq=+$('lb-freq').value, dist=+$('lb-dist').value;
-  const grx=+$('lb-grx').value, lrx=+$('lb-lrx').value, srx=+$('lb-srx').value;
+  const ptx=+nv('lb-ptx'), gtx=+nv('lb-gtx'), ltx=+nv('lb-ltx');
+  const freq=+nv('lb-freq'), dist=+nv('lb-dist');
+  const grx=+nv('lb-grx'), lrx=+nv('lb-lrx'), srx=+nv('lb-srx');
 
   const FSPL = fsplFn(dist, freq);
   const EIRP = ptx + gtx - ltx;
@@ -819,10 +842,10 @@ const refChart = new Chart($('ref-chart').getContext('2d'), {
 const TERRAIN = { mar:{er:70,sigma:5}, humedo:{er:30,sigma:0.01}, seco:{er:15,sigma:0.001}, roca:{er:5,sigma:0.0001} };
 
 function refCalc() {
-  const freq_Hz=+$('ref-freq').value*1e6, d_m=+$('ref-dist').value*1e3, K=+$('ref-K').value;
-  const ctx_m=+$('ref-ctx').value, htx_m=+$('ref-htx').value;
-  const crx_m=+$('ref-crx').value, hrx_m=+$('ref-hrx').value;
-  const see=+$('ref-see').value, pol=$('ref-pol').value;
+  const freq_Hz=+nv('ref-freq')*1e6, d_m=+nv('ref-dist')*1e3, K=+nv('ref-K');
+  const ctx_m=+nv('ref-ctx'), htx_m=+nv('ref-htx');
+  const crx_m=+nv('ref-crx'), hrx_m=+nv('ref-hrx');
+  const see=+nv('ref-see'), pol=$('ref-pol').value;
   const {er,sigma}=TERRAIN[$('ref-terrain').value];
 
   const RT=6371e3, Re=K*RT, c0=3e8, lambda=c0/freq_Hz, f_MHz=freq_Hz/1e6;
@@ -931,7 +954,7 @@ const difChart=new Chart($('dif-chart').getContext('2d'),{
     {label:'Rayo óptico',data:[],borderColor:C.blue,borderWidth:2,pointRadius:0,fill:false,tension:0},
     {label:'Fresnel +R1',data:[],borderColor:C.sky,borderWidth:0,fill:'+2',backgroundColor:'rgba(56,189,248,0.07)',pointRadius:0,tension:0.3},
     {label:'Fresnel −R1',data:[],borderColor:C.sky,borderWidth:0,fill:false,pointRadius:0,tension:0.3},
-    {label:'Obstáculos',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
+    {label:'Obstáculos (cota + abombamiento b)',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
   ]},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,padding:10}}},
@@ -949,8 +972,8 @@ function difRenderObs(){
 function difAddObs(){difObsList.push({d:(difObsList[difObsList.length-1]?.d||5)+2,h:500});difRenderObs();difCalc();}
 
 function difCalc(){
-  const freq_Hz=+$('dif-freq').value*1e6, d_tot=+$('dif-dist').value*1e3;
-  const h_tx=+$('dif-htx').value, h_rx=+$('dif-hrx').value, K=+$('dif-K').value, RT=6371e3;
+  const freq_Hz=+nv('dif-freq')*1e6, d_tot=+nv('dif-dist')*1e3;
+  const h_tx=+nv('dif-htx'), h_rx=+nv('dif-hrx'), K=+nv('dif-K'), RT=6371e3;
   const lambda=3e8/freq_Hz;
 
   const freqDisp=freq_Hz>=1e9?f2(freq_Hz/1e9)+' GHz':f1(freq_Hz/1e6)+' MHz';
@@ -1034,7 +1057,7 @@ function difCalc(){
     const R1v=d>0&&d2>0?Math.sqrt(lambda*d*d2/(d+d2)):0;
     fu.push(yr+R1v); fd.push(yr-R1v);
   }
-  results.forEach(r=>{const idx=Math.round(r.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=r.h;});
+  results.forEach(r=>{const idx=Math.round(r.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=r.h+r.b;});
   difChart.data.labels=lb2;difChart.data.datasets[0].data=ray;difChart.data.datasets[1].data=fu;difChart.data.datasets[2].data=fd;difChart.data.datasets[3].data=od;difChart.update('none');
 }
 
@@ -1127,12 +1150,30 @@ const lluviaChartMD=new Chart($('lluvia-chart-MD').getContext('2d'),{
   options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{color:C.gray},title:{display:true,text:'Margen MD (dB)'}},y:{grid:{color:C.gray},title:{display:true,text:'Indisp. (%)'},type:'logarithmic'}}}
 });
 
+// UIT-R P.618 — distancia efectiva satelital (Lr·v0.01). Depende de f a través de γR (r0.01 y v0.01)
+function satDeff(f_GHz, gammaR, theta, lat, hs, h0){
+  const hR=h0+0.36;                 // altura de lluvia (km)
+  const thR=theta*Math.PI/180;
+  // Longitud inclinada Ls (km)
+  const Ls = theta>=5
+    ? (hR-hs)/Math.sin(thR)
+    : 2*(hR-hs)/(Math.sqrt(Math.sin(thR)*Math.sin(thR)+2*(hR-hs)/6371)+Math.sin(thR));
+  const Lg=Ls*Math.cos(thR);        // proyección horizontal (km)
+  const r001=1/(1+0.78*Math.sqrt(Lg*gammaR/f_GHz)-0.38*(1-Math.exp(-2*Lg)));
+  const thr=Math.atan((hR-hs)/(Lg*r001))*180/Math.PI;
+  const Lr=thr>theta ? Lg*r001/Math.cos(thR) : (hR-hs)/Math.sin(thR);
+  const eps=Math.max(0, 36-Math.abs(lat));   // corrección por latitud (P.618 §2.2.1.1)
+  const v001=1/(1+Math.sqrt(Math.sin(thR))*(
+    31*(1-Math.exp(-theta/(1+eps)))*Math.sqrt(Lr*gammaR)/f_GHz/f_GHz - 0.45
+  ));
+  return Lr*v001;
+}
 function lluviaCalc(){
   const tipo=$('lluvia-tipo').value;
-  const R001=+$('lluvia-R').value;
-  const f_GHz=+$('lluvia-freq').value;
+  const R001=+nv('lluvia-R');
+  const f_GHz=+nv('lluvia-freq');
   const pol=$('lluvia-pol').value;
-  const MD=+$('lluvia-MD').value;
+  const MD=+nv('lluvia-MD');
 
   $('lluvia-ter-params').style.display=tipo==='terrenal'?'':'none';
   $('lluvia-sat-params').style.display=tipo==='satelital'?'':'none';
@@ -1144,7 +1185,7 @@ function lluviaCalc(){
   let deff, F001;
 
   if(tipo==='terrenal'){
-    const d_km=+$('lluvia-d').value;
+    const d_km=+nv('lluvia-d');
     // UIT-R P.530-17 — distancia efectiva
     const den=0.477*Math.pow(d_km,0.633)*Math.pow(R001,0.073*a)*Math.pow(f_GHz,0.123)
               -10.579*(1-Math.exp(-0.024*d_km));
@@ -1152,40 +1193,7 @@ function lluviaCalc(){
     F001=gammaR*deff;
   } else {
     // UIT-R P.618 — enlace satelital
-    const theta=+$('lluvia-theta').value;
-    const lat=+$('lluvia-lat').value;       // latitud real de la estación
-    const hs=+$('lluvia-hs').value;         // km
-    const h0=+$('lluvia-h0').value;         // km
-
-    const hR=h0+0.36;        // altura de lluvia (km)
-    const hnMET=hs;           // altura estación (km)
-    const thR=theta*Math.PI/180;
-
-    // Longitud inclinada Ls (km)
-    const Ls = theta>=5
-      ? (hR-hnMET)/Math.sin(thR)
-      : 2*(hR-hnMET)/(Math.sqrt(Math.sin(thR)*Math.sin(thR)+2*(hR-hnMET)/6371)+Math.sin(thR));
-
-    // Proyección horizontal Lg (km)
-    const Lg=Ls*Math.cos(thR);
-
-    // Factor de reducción r0.01
-    const r001=1/(1+0.78*Math.sqrt(Lg*gammaR/f_GHz)-0.38*(1-Math.exp(-2*Lg)));
-
-    // Longitud de trayecto reducida Lr (km)
-    const thr=Math.atan((hR-hnMET)/(Lg*r001))*180/Math.PI;
-    const Lr=thr>theta ? Lg*r001/Math.cos(thR) : (hR-hnMET)/Math.sin(thR);
-
-    // epsilon — corrección por latitud (P.618 §2.2.1.1)
-    // epsilon = max(0, 36 - |lat|)   → 0 para latitudes ≥ 36°
-    const eps=Math.max(0, 36-Math.abs(lat));
-
-    // v0.01
-    const v001=1/(1+Math.sqrt(Math.sin(thR))*(
-      31*(1-Math.exp(-theta/(1+eps)))*Math.sqrt(Lr*gammaR)/f_GHz/f_GHz - 0.45
-    ));
-
-    deff=Lr*v001;
+    deff=satDeff(f_GHz,gammaR,+nv('lluvia-theta'),+nv('lluvia-lat'),+nv('lluvia-hs'),+nv('lluvia-h0'));
     F001=gammaR*deff;
   }
 
@@ -1226,10 +1234,10 @@ function lluviaCalc(){
 
   // Gráfico F0.01 vs Frecuencia
   // Para terrenal: deff depende de f_GHz (vía α en el denominador), así que se recalcula en cada punto
-  // Para satelital: deff viene de la geometría (Lr·v001), que no depende de f directamente → se reutiliza
+  // Para satelital: Lr y v0.01 dependen de f vía γR → también se recalcula (satDeff)
   const fl=[],fF=[];
   if(tipo==='terrenal'){
-    const d_km=+$('lluvia-d').value;
+    const d_km=+nv('lluvia-d');
     for(let i=1;i<=60;i++){
       const fg=1+i/60*99;
       const{k:ki,a:ai}=p838(fg,pol);
@@ -1240,11 +1248,13 @@ function lluviaCalc(){
       fl.push(f1(fg));fF.push(gammaRi*deffi);
     }
   } else {
-    // satelital: deff geométrico, solo varía k/α con frecuencia
+    // satelital: deff también depende de f (γR entra en r0.01 y v0.01) → se recalcula en cada punto
+    const th=+nv('lluvia-theta'), la=+nv('lluvia-lat'), hs=+nv('lluvia-hs'), h0=+nv('lluvia-h0');
     for(let i=1;i<=60;i++){
       const fg=1+i/60*99;
       const{k:ki,a:ai}=p838(fg,pol);
-      fl.push(f1(fg));fF.push(ki*Math.pow(R001,ai)*deff);
+      const gRi=ki*Math.pow(R001,ai);
+      fl.push(f1(fg));fF.push(gRi*satDeff(fg,gRi,th,la,hs,h0));
     }
   }
   lluviaChartFreq.data.labels=fl;lluviaChartFreq.data.datasets[0].data=fF;lluviaChartFreq.update('none');
@@ -1278,7 +1288,7 @@ const antChart=new Chart($('ant-chart').getContext('2d'),{
     {label:'Rayo óptico',data:[],borderColor:C.blue,borderWidth:2,pointRadius:0,fill:false,tension:0},
     {label:'Fresnel +R1',data:[],borderColor:C.sky,borderWidth:0,fill:'+2',backgroundColor:'rgba(56,189,248,0.07)',pointRadius:0,tension:0.3},
     {label:'Fresnel −R1',data:[],borderColor:C.sky,borderWidth:0,fill:false,pointRadius:0,tension:0.3},
-    {label:'Obstáculos',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
+    {label:'Obstáculos (cota + abombamiento b)',data:[],borderColor:C.orange,borderWidth:0,pointRadius:8,pointBackgroundColor:C.orange,showLine:false}
   ]},
   options:{responsive:true,maintainAspectRatio:false,
     plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:8,padding:10}}},
@@ -1296,9 +1306,9 @@ function antRenderObs(){
 function antAddObs(){antObsList.push({d:(antObsList[antObsList.length-1]?.d||5)+2,h:500});antRenderObs();antCalc();}
 
 function antCalc(){
-  const freq_Hz=+$('ant-freq').value*1e6, d_tot=+$('ant-dist').value*1e3;
-  const ee_tx=+$('ant-etx').value, ee_rx=+$('ant-erx').value;
-  const v_req=+$('ant-vreq').value, hmin=+$('ant-hmin').value, hmax=+$('ant-hmax').value;
+  const freq_Hz=+nv('ant-freq')*1e6, d_tot=+nv('ant-dist')*1e3;
+  const ee_tx=+nv('ant-etx'), ee_rx=+nv('ant-erx');
+  const v_req=+nv('ant-vreq'), hmin=+nv('ant-hmin'), hmax=+nv('ant-hmax');
   const K=4/3, RT=6371e3, lambda=3e8/freq_Hz;
 
   const obs=antObsList.filter(o=>o.d>0&&o.d<d_tot/1e3).map(o=>({d1:o.d*1e3,ee:o.h})).sort((a,b)=>a.d1-b.d1);
@@ -1311,15 +1321,24 @@ function antCalc(){
   const b=d1a.map((d1,i)=>d1*d2a[i]/(2*K*RT));
   const R1=d1a.map((d1,i)=>Math.sqrt(lambda*d1*d2a[i]/(d1+d2a[i])));
 
-  let het1=hmin, het2=hmin, found=false;
-  outer:for(let h1=hmin;h1<=hmax;h1++){
-    for(let h2=hmin;h2<=hmax;h2++){
-      const sl=((ee_rx+h2)-(ee_tx+h1))/d_tot;
-      const y=d1a.map(d1=>sl*d1+ee_tx+h1);
-      const c=eeA.map((e,i)=>e+b[i]-y[i]);
-      const v=c.map((ci,i)=>Math.sqrt(2)*ci/R1[i]);
-      if(Math.max(...v)<=v_req){het1=h1;het2=h2;found=true;break outer;}
-    }
+  let het1=hmin, het2=hmin, found=false, best=Infinity;
+  const tI=d1a.map(d=>d/d_tot);
+  // Despejamiento requerido en cada obstáculo: y_i >= Yreq_i, con y_i = E1·(1-t_i) + E2·t_i (creciente en E1 y E2)
+  const Yreq=eeA.map((e,i)=>e+b[i]-v_req*R1[i]/Math.SQRT2);
+  const okPair=(h1,h2)=>{
+    const sl=((ee_rx+h2)-(ee_tx+h1))/d_tot;
+    const v=d1a.map((d1,i)=>Math.sqrt(2)*(eeA[i]+b[i]-(sl*d1+ee_tx+h1))/R1[i]);
+    return Math.max(...v)<=v_req;
+  };
+  // Para cada het1 se toma la het2 mínima que cumple (paso de 1 m) y se conserva la pareja de menor suma
+  for(let h1=hmin;h1<=hmax;h1++){
+    const E1=ee_tx+h1;
+    let E2=-Infinity;
+    for(let i=0;i<Yreq.length;i++) E2=Math.max(E2,(Yreq[i]-E1*(1-tI[i]))/tI[i]);
+    let h2=hmin+Math.max(0,Math.ceil(E2-ee_rx-hmin-1e-9));
+    if(h2>hmax) continue;
+    if(!okPair(h1,h2)){ h2++; if(h2>hmax||!okPair(h1,h2)) continue; }
+    if(h1+h2<best){best=h1+h2;het1=h1;het2=h2;found=true;}
   }
 
   const sl2=((ee_rx+het2)-(ee_tx+het1))/d_tot;
@@ -1351,7 +1370,7 @@ function antCalc(){
     const R1v=d>0&&d2>0?Math.sqrt(lambda*d*d2/(d+d2)):0;
     fu.push(yr+R1v); fd.push(yr-R1v);
   }
-  obs.forEach(o=>{const idx=Math.round(o.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=o.ee;});
+  obs.forEach((o,i)=>{const idx=Math.round(o.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=o.ee+b[i];});
   antChart.data.labels=lb2;antChart.data.datasets[0].data=ray;antChart.data.datasets[1].data=fu;antChart.data.datasets[2].data=fd;antChart.data.datasets[3].data=od;antChart.update('none');
 }
 
