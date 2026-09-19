@@ -112,23 +112,6 @@
     .tc-tag { font-family: var(--mono); font-size: 10px; color: var(--hero-t2); background: var(--hero-b); padding: 3px 7px; border-radius: 4px; display: inline-block; border: 1px solid rgba(255,255,255,0.05); }
     .tool-card.span2 { grid-column: span 2; }
 
-    /* PRO BANNER */
-    .pro-banner { max-width: 1040px; margin: 0 auto 0; padding: 0 32px 64px; }
-    .pro-card { background: linear-gradient(135deg, rgba(59,130,246,0.12) 0%, rgba(139,92,246,0.08) 100%); border: 1px solid rgba(59,130,246,0.3); border-radius: 14px; padding: 32px 36px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
-    .pro-badge { font-family: var(--mono); font-size: 10px; color: var(--accent); letter-spacing: 0.12em; background: rgba(59,130,246,0.12); border: 1px solid rgba(59,130,246,0.25); padding: 3px 10px; border-radius: 99px; display: inline-block; margin-bottom: 10px; }
-    .pro-title { font-size: 18px; font-weight: 600; color: var(--hero-t); margin-bottom: 6px; letter-spacing: -0.02em; }
-    .pro-desc { font-size: 13px; color: var(--hero-t2); line-height: 1.6; max-width: 480px; }
-    .pro-items { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
-    .pro-item { font-size: 11px; color: var(--hero-t2); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); padding: 3px 9px; border-radius: 4px; font-family: var(--mono); }
-    .pro-right { display: flex; flex-direction: column; align-items: flex-end; gap: 10px; flex-shrink: 0; }
-    .pro-form { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-    .pro-input { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: var(--hero-t); font-family: var(--sans); font-size: 13px; padding: 8px 14px; outline: none; width: 220px; transition: border-color .15s; }
-    .pro-input::placeholder { color: var(--hero-t2); }
-    .pro-input:focus { border-color: var(--accent); }
-    .pro-btn { background: var(--accent); border: none; border-radius: 6px; color: white; font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 8px 18px; cursor: pointer; white-space: nowrap; transition: opacity .15s; }
-    .pro-btn:hover { opacity: 0.88; }
-    .pro-note { font-size: 11px; color: var(--hero-t2); font-family: var(--mono); }
-    .pro-thanks { display: none; font-size: 13px; color: var(--ok); font-weight: 500; text-align: right; }
 
     /* SEO SECTIONS */
     .seo-section { max-width: 1040px; margin: 0 auto; padding: 0 32px 48px; border-top: 1px solid var(--hero-b); }
@@ -347,12 +330,9 @@
       .calc-page { padding: 20px 16px 60px; }
       .hero { padding: 48px 20px 40px; }
       .tools-grid { padding: 0 20px 60px; }
-      .pro-card { flex-direction: column; align-items: flex-start; }
-      .pro-right { align-items: flex-start; width: 100%; }
-      .pro-input { width: 100%; }
       .seo-grid { grid-template-columns: 1fr 1fr; }
       .about-inner { grid-template-columns: 1fr; }
-      .pro-banner, .seo-section, .about-section { padding-left: 20px; padding-right: 20px; }
+      .seo-section, .about-section { padding-left: 20px; padding-right: 20px; }
     }
     @media (max-width: 520px) {
       .tools-grid { grid-template-columns: 1fr; }
@@ -387,21 +367,6 @@
     <div class="tool-card" onclick="showPage('dif')"><span class="tc-icon">⛰</span><span class="tc-num">03 · DIFRACCIÓN</span><div class="tc-title">Difracción por Terreno</div><div class="tc-desc">Knife-edge para obstáculo aislado y método de Bullington para múltiples obstáculos. Visualización del perfil con zona de Fresnel.</div><span class="tc-tag">Bullington · Knife-Edge</span></div>
     <div class="tool-card span2" onclick="showPage('lluvia')"><span class="tc-icon">🌧</span><span class="tc-num">04 · ATENUACIÓN POR LLUVIA</span><div class="tc-title">Lluvia — Terrenal y Satelital</div><div class="tc-desc">Atenuación específica γ<sub>R</sub>, distancia efectiva y disponibilidad del enlace para radioenlaces terrestres (P.530) y satelitales (P.618). Coeficientes k y α interpolados de P.838-3.</div><span class="tc-tag">ITU-R P.530 · P.618 · P.838-3</span></div>
     <div class="tool-card" onclick="showPage('ant')"><span class="tc-icon">📶</span><span class="tc-num">05 · ALTURAS</span><div class="tc-title">Cálculo de Alturas de Antenas</div><div class="tc-desc">Optimiza h<sub>et1</sub> y h<sub>et2</sub> mínimas para garantizar el despejamiento requerido en todos los obstáculos del perfil.</div><span class="tc-tag">Zona de Fresnel · v mín</span></div>
-  </div>
-  <div class="pro-banner">
-    <div class="pro-card">
-      <div class="pro-left">
-        <div class="pro-badge">PRÓXIMAMENTE · CALC.TELECO PRO</div>
-        <div class="pro-title">Scripts MATLAB + Ejercicios de Examen</div>
-        <div class="pro-desc">Los mismos códigos que usé en la asignatura de Radiación y Radiocomunicación, comentados línea a línea, con ejercicios tipo examen resueltos paso a paso y los errores típicos que cometemos en MATLAB.</div>
-        <div class="pro-items"><span class="pro-item">Scripts MATLAB comentados</span><span class="pro-item">Ejercicios tipo examen</span><span class="pro-item">PDFs con procedimientos</span><span class="pro-item">Errores comunes MATLAB</span><span class="pro-item">Chuletas de fórmulas</span></div>
-      </div>
-      <div class="pro-right">
-        <div class="pro-form" id="pro-form"><input type="email" class="pro-input" id="pro-email" placeholder="tu@correo.com" /><button class="pro-btn" onclick="proBannerSubmit()">Avísame cuando esté listo</button></div>
-        <div class="pro-thanks" id="pro-thanks">✓ Te avisamos en cuanto esté disponible</div>
-        <div class="pro-note">Sin spam · Solo te avisamos cuando esté listo</div>
-      </div>
-    </div>
   </div>
   <div class="seo-section">
     <div class="seo-section-title">Qué puedes calcular</div>
@@ -1388,21 +1353,6 @@ function antCalc(){
   }
   obs.forEach(o=>{const idx=Math.round(o.d1/d_tot*s);if(idx>=0&&idx<=s)od[idx]=o.ee;});
   antChart.data.labels=lb2;antChart.data.datasets[0].data=ray;antChart.data.datasets[1].data=fu;antChart.data.datasets[2].data=fd;antChart.data.datasets[3].data=od;antChart.update('none');
-}
-
-// ── PRO BANNER ────────────────────────────────────────────────
-function proBannerSubmit() {
-  const email = $('pro-email').value.trim();
-  if (!email || !email.includes('@')) {
-    $('pro-email').focus();
-    $('pro-email').style.borderColor = 'var(--bad)';
-    setTimeout(() => { $('pro-email').style.borderColor = ''; }, 1500);
-    return;
-  }
-  const url = 'https://tally.so/r/mO1LQK?email=' + encodeURIComponent(email);
-  window.open(url, '_blank');
-  $('pro-form').style.display = 'none';
-  $('pro-thanks').style.display = 'block';
 }
 
 // ── INIT ──────────────────────────────────────────────────────
